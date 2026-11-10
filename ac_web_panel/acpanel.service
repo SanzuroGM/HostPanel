@@ -1,0 +1,13 @@
+[Unit]
+Description=Assetto Corsa Web Panel
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/ac_web_panel
+ExecStart=/usr/bin/python3 /root/ac_web_panel/app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

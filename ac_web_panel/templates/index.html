@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alternative Panel — Assetto Corsa Hosting</title>
+<link rel="icon" href="/static/logo.png">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0a0714;
+  --mica:rgba(26,20,46,.78);
+  --inset:#0d0a1c;
+  --line:rgba(170,140,255,.14);
+  --line-soft:rgba(170,140,255,.08);
+  --txt:#f1eaff;
+  --muted:#9d94c4;
+  --accent:#c084fc;
+  --accent-btn:#7c3aed;
+  --accent-btn-h:#8b5cf6;
+  --accent-dim:rgba(168,85,247,.14);
+  --ok-bd:#2e7d32; --ok-t:#a9e6b0;
+  --err-bd:#e5484d; --err-t:#ffb4b8;
+  --r:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:var(--txt);
+  font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:
+    radial-gradient(1000px 420px at 50% -120px, rgba(124,58,237,.32), transparent 65%),
+    radial-gradient(800px 400px at 92% 8%, rgba(168,85,247,.10), transparent 60%),
+    radial-gradient(700px 500px at 5% 95%, rgba(124,58,237,.12), transparent 60%),
+    linear-gradient(180deg,#0d0a1e 0%,#0a0714 100%);
+  background-attachment:fixed;min-height:100vh;
+}
+a{color:var(--accent)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#3a2d5e;border-radius:6px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+/* ---------- splash ---------- */
+#splash{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(800px 420px at 50% 30%, rgba(124,58,237,.35), transparent 65%),
+    linear-gradient(180deg,#0d0a1e,#070512);
+  transition:opacity .5s ease;cursor:pointer}
+#splash.hide{opacity:0;pointer-events:none}
+.splash-inner{text-align:center;padding:20px;animation:rise .5s cubic-bezier(.16,.7,.3,1) both;max-width:92vw}
+.splash-logo{max-width:300px;width:70vw;height:auto;filter:drop-shadow(0 0 26px rgba(168,85,247,.5))}
+.splash-title{margin-top:14px;font-size:26px;font-weight:800;letter-spacing:4px;
+  background:linear-gradient(135deg,#e9d5ff,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.splash-sub{color:var(--muted);font-size:14px;margin-top:4px;letter-spacing:1px}
+.splash-bar{width:280px;max-width:70vw;height:6px;margin:22px auto 10px;border-radius:4px;
+  background:rgba(255,255,255,.08);overflow:hidden}
+.splash-fill{height:100%;width:0%;border-radius:4px;
+  background:linear-gradient(90deg,#7c3aed,#c084fc,#7c3aed);background-size:200% 100%;
+  animation:barshine 1.1s linear infinite;transition:width .12s linear}
+@keyframes barshine{to{background-position:-200% 0}}
+.splash-row{display:flex;justify-content:space-between;width:280px;max-width:70vw;margin:0 auto;
+  color:var(--muted);font-size:12px}
+.splash-credit{margin-top:22px;font-size:12px;color:var(--muted)}
+.splash-credit b{color:var(--accent)}
+/* ---------- header ---------- */
+header.top{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,7,22,.72);
+  backdrop-filter:blur(22px) saturate(1.6);-webkit-backdrop-filter:blur(22px) saturate(1.6);
+  border-bottom:1px solid var(--line-soft);
+  padding:10px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+}
+.brand{font-size:19px;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;gap:10px}
+.header-logo{height:40px;width:auto;filter:drop-shadow(0 0 12px rgba(168,85,247,.45))}
+.brand b{background:linear-gradient(135deg,var(--accent),#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ver{font-size:11px;background:var(--accent-dim);border:1px solid rgba(168,85,247,.4);color:var(--accent);
+  padding:2px 9px;border-radius:20px;font-weight:700;vertical-align:middle}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.user{color:var(--muted);font-size:13px;display:inline-flex;align-items:center;gap:7px}
+.user a{color:var(--muted)}
+.header-ava{width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+.status{padding:8px 14px;border-radius:20px;font-weight:600;font-size:13px;background:rgba(255,255,255,.05);
+  border:1px solid var(--line);display:inline-flex;align-items:center}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.status.online .dot{background:#7bff9e;box-shadow:0 0 10px #4caf7d;animation:pulse 1.6s ease-in-out infinite}
+.status.offline .dot{background:#ff8a8a;box-shadow:0 0 8px #e5484d}
+@keyframes pulse{50%{opacity:.45}}
+/* ---------- sysbar ---------- */
+.sysbar{display:flex;gap:18px;flex-wrap:wrap;align-items:center;padding:8px 20px;
+  font-size:12.5px;color:var(--muted);background:rgba(10,7,22,.55);
+  border-bottom:1px solid var(--line-soft)}
+.sysbar b{color:var(--txt);font-weight:700}
+.sys-spacer{flex:1}
+/* ---------- buttons (Fluent) ---------- */
+button,.btn{
+  font-family:inherit;padding:9px 16px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;
+  color:var(--txt);background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.09);border-bottom-color:rgba(255,255,255,.18);
+  transition:background .15s,transform .08s,box-shadow .15s,border-color .15s;
+  text-decoration:none;display:inline-block;
+}
+button:hover,.btn:hover{background:rgba(255,255,255,.10)}
+button:active,.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent-btn);border-color:rgba(255,255,255,.08);border-bottom-color:rgba(0,0,0,.45);color:#fff}
+.btn-primary:hover{background:var(--accent-btn-h)}
+.btn-danger{background:rgba(229,72,77,.13);border-color:rgba(229,72,77,.4);color:var(--err-t)}
+.btn-danger:hover{background:rgba(229,72,77,.28)}
+.btn-danger-sm{background:transparent;border:1px solid rgba(229,72,77,.5);color:var(--err-t);
+  padding:5px 11px;font-size:12px;border-radius:6px;font-weight:600}
+.btn-danger-sm:hover{background:var(--err-bd);border-color:var(--err-bd);color:#fff}
+/* ---------- tabs ---------- */
+.tabs{
+  position:sticky;top:60px;z-index:40;
+  background:rgba(10,7,22,.72);backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);
+  border-bottom:1px solid var(--line-soft);
+  display:flex;gap:6px;padding:10px 16px;overflow-x:auto;
+}
+.tab-btn{background:transparent;border:1px solid transparent;color:var(--muted);border-radius:7px;
+  white-space:nowrap;font-weight:600;padding:9px 15px;box-shadow:none}
+.tab-btn:hover{color:var(--txt);background:rgba(255,255,255,.06)}
+.tab-btn.active{color:#fff;background:var(--accent-dim);box-shadow:inset 0 -2px 0 var(--accent)}
+.pill{display:inline-block;min-width:20px;padding:1px 6px;border-radius:12px;font-size:11px;font-weight:800;
+  background:var(--accent-btn);color:#fff;text-align:center}
+/* ---------- layout ---------- */
+.container{max-width:1080px;margin:0 auto;padding:22px 16px 60px}
+.tab-section{display:none}
+.tab-section.active{display:block}
+.tab-section.active .card{animation:rise .5s cubic-bezier(.16,.7,.3,1) both}
+.tab-section.active .card:nth-child(2){animation-delay:.06s}
+.tab-section.active .card:nth-child(3){animation-delay:.12s}
+.tab-section.active .card:nth-child(4){animation-delay:.18s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.card{
+  background:var(--mica);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);
+  border:1px solid var(--line-soft);border-radius:12px;padding:22px;margin-bottom:18px;
+  box-shadow:0 8px 32px rgba(0,0,0,.45);
+  transition:border-color .2s,transform .2s;
+}
+.card:hover{border-color:var(--line)}
+.card h2{margin:0 0 4px;font-size:18px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card h3{margin:22px 0 10px;font-size:15px;font-weight:600;border-bottom:1px solid var(--line-soft);padding-bottom:8px}
+.hint{color:var(--muted);font-size:13px;margin:0 0 14px;line-height:1.5}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+@media(max-width:760px){.g2,.g3,.g4{grid-template-columns:1fr}}
+label.f{display:block}
+label.f>span{display:block;margin-bottom:6px;font-size:12px;color:var(--muted);font-weight:600}
+input[type=text],input[type=number],input[type=password],select,textarea{
+  width:100%;padding:10px 12px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.09);
+  border-bottom-color:rgba(255,255,255,.22);border-radius:6px;color:var(--txt);font-size:14px;font-family:inherit;
+  transition:border-color .15s,box-shadow .15s,background .15s;
+}
+input:focus,select:focus,textarea:focus{border-color:rgba(168,85,247,.5);background:#120c26;outline:none;
+  box-shadow:inset 0 -2px 0 var(--accent),0 0 0 3px rgba(168,85,247,.12)}
+input[type=file]{padding:8px}
+textarea{resize:vertical;min-height:90px;line-height:1.5}
+.search{margin-bottom:12px}
+/* toggle switches */
+input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:42px;height:22px;border-radius:11px;
+  background:#2c2347;border:1px solid rgba(255,255,255,.14);position:relative;cursor:pointer;margin:0;
+  transition:background .2s,border-color .2s}
+input[type=checkbox]::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
+  background:#c7d3e8;transition:transform .2s,background .2s}
+input[type=checkbox]:checked{background:var(--accent-btn);border-color:var(--accent-btn)}
+input[type=checkbox]:checked::after{transform:translateX(20px);background:#fff}
+input[type=checkbox]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.check{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.25);border:1px solid var(--line-soft);
+  border-radius:8px;padding:10px 12px;font-size:14px;cursor:pointer;transition:border-color .15s}
+.check:hover{border-color:var(--line)}
+.check small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+details.adv{margin-top:14px;border:1px solid var(--line-soft);border-radius:8px;background:rgba(0,0,0,.25)}
+details.adv summary{padding:12px 14px;cursor:pointer;font-weight:600;color:var(--muted);list-style:none}
+details.adv summary::before{content:"› ";color:var(--accent)}
+details.adv[open] summary::before{content:"⌄ "}
+details.adv .in{padding:2px 14px 16px}
+/* flashes */
+.flash{padding:12px 16px;border-radius:8px;margin-bottom:12px;font-weight:600;font-size:14px;
+  border:1px solid;animation:slideDown .35s ease}
+.flash.ok{background:rgba(46,125,50,.18);color:var(--ok-t);border-color:var(--ok-bd)}
+.flash.error{background:rgba(229,72,77,.14);color:var(--err-t);border-color:var(--err-bd)}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+/* images */
+img.fade{opacity:0;transition:opacity .5s ease}
+img.fade.loaded{opacity:1}
+.car-img,.track-img,.slot-img,.thumb{
+  background:linear-gradient(110deg,#150f28 30%,#2a1b56 45%,#150f28 60%);
+  background-size:200% 100%;animation:shimmer 1.4s linear infinite;
+}
+img.loaded{animation:none;background:none}
+@keyframes shimmer{to{background-position:-200% 0}}
+/* track hero */
+.track-hero{display:flex;gap:16px;background:var(--inset);border:1px solid var(--line-soft);
+  border-radius:var(--r);padding:14px;margin-bottom:14px;overflow:hidden}
+.track-img{width:min(360px,42%);min-height:150px;max-height:215px;object-fit:cover;border-radius:8px;flex:none}
+.track-meta{min-width:0;display:flex;flex-direction:column;justify-content:center}
+.track-name{font-size:20px;font-weight:700;margin-bottom:6px}
+.track-desc{color:var(--muted);font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;
+  -webkit-box-orient:vertical;overflow:hidden}
+.track-tags{margin-top:10px}
+.track-tags .badge{margin-right:6px}
+@media(max-width:640px){.track-hero{flex-direction:column}.track-img{width:100%;max-height:200px}}
+/* car cards */
+.car-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:12px}
+.car-card{background:rgba(0,0,0,.28);border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;
+  font-size:13px;transition:transform .18s,border-color .18s,box-shadow .18s}
+.car-card:hover{transform:translateY(-3px);border-color:var(--line);box-shadow:0 10px 26px rgba(0,0,0,.5)}
+.car-card.sel{border-color:var(--accent-btn);box-shadow:0 0 0 1px var(--accent-btn),0 10px 26px rgba(0,0,0,.5)}
+.car-img{width:100%;height:122px;object-fit:cover;display:block}
+.car-body{padding:11px 12px}
+.car-body b{font-size:14px}
+.car-body .meta{color:var(--muted);margin-top:4px;font-size:12px}
+.car-body label{display:flex;gap:9px;align-items:center;margin-top:9px;cursor:pointer;color:var(--muted);font-size:13px}
+/* slots */
+.slot{border:1px solid var(--line-soft);border-radius:10px;background:rgba(0,0,0,.28);padding:14px;margin-bottom:12px;
+  transition:border-color .15s}
+.slot:hover{border-color:var(--line)}
+.slot-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:700}
+.slot-head .num{background:linear-gradient(135deg,var(--accent-btn),#5b21b6);border-radius:6px;
+  padding:3px 12px;font-size:13px;color:#fff}
+.slot-top{display:flex;gap:12px;margin-bottom:12px}
+.slot-img{width:168px;min-height:94px;max-height:110px;object-fit:cover;border-radius:8px;flex:none}
+.slot-picks{flex:1;display:grid;gap:10px;grid-template-columns:1fr 1fr;align-content:start}
+@media(max-width:640px){.slot-top{flex-direction:column}.slot-img{width:100%;height:150px;max-height:none}.slot-picks{grid-template-columns:1fr}}
+/* lists */
+table.list{width:100%;border-collapse:collapse;font-size:14px}
+table.list td,table.list th{padding:9px 8px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:middle}
+table.list tr:hover td{background:rgba(255,255,255,.02)}
+table.list th{color:var(--muted);font-size:12px;font-weight:600}
+table.list tr.me td{background:rgba(168,85,247,.08)}
+.mod-row{display:flex;gap:10px;align-items:center}
+.thumb{width:104px;height:58px;object-fit:cover;border-radius:6px;flex:none}
+.badge{display:inline-block;background:rgba(255,255,255,.06);border:1px solid var(--line-soft);
+  border-radius:6px;padding:2px 8px;font-size:12px;color:var(--muted)}
+/* invite */
+.invite{background:var(--inset);border:1px solid var(--line-soft);border-radius:8px;padding:14px}
+.invite-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.invite-item{background:rgba(255,255,255,.03);border:1px solid var(--line-soft);border-radius:8px;
+  padding:8px 12px;font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.invite-item small{display:block;color:var(--muted);font-size:11px;font-weight:600}
+.invite pre{margin:0 0 12px;white-space:pre-wrap;font-family:inherit;font-size:13.5px;line-height:1.7;
+  background:rgba(0,0,0,.3);border:1px solid var(--line-soft);border-radius:8px;padding:12px}
+/* profile + stats */
+.prof-top{display:flex;gap:18px;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap}
+.prof-avatar{width:120px;height:120px;border-radius:16px;object-fit:cover;flex:none;
+  border:2px solid rgba(168,85,247,.4);box-shadow:0 0 24px rgba(124,58,237,.35)}
+.prof-ava-form{flex:1;min-width:220px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:6px}
+.tile{background:rgba(0,0,0,.28);border:1px solid var(--line-soft);border-radius:10px;padding:12px;text-align:center}
+.tile small{display:block;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.tile b{font-size:17px}
+.tile b.ellipsis{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile-img{width:100%;height:84px;object-fit:cover;border-radius:8px;margin-bottom:6px;background:rgba(0,0,0,.3)}
+.tile-imgs{display:flex;gap:6px;margin-bottom:6px}
+.tile-imgs img{width:50%;height:64px;object-fit:cover;border-radius:8px;background:rgba(0,0,0,.3)}
+.stat-row{display:grid;grid-template-columns:1fr 110px 64px;gap:10px;align-items:center;
+  padding:6px 0;border-bottom:1px solid var(--line-soft);font-size:13px}
+.stat-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stat-row b{text-align:right}
+.bar{height:8px;background:rgba(255,255,255,.07);border-radius:5px;overflow:hidden}
+.bar span{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#7c3aed,#c084fc)}
+.prog{height:12px;background:rgba(255,255,255,.08);border-radius:7px;overflow:hidden}
+.prog>span{display:block;height:100%;width:0;border-radius:7px;background:linear-gradient(90deg,#7c3aed,#c084fc);transition:width .15s}
+.qrow{display:flex;gap:8px;align-items:baseline;justify-content:space-between;padding:3px 0;font-size:13px;border-bottom:1px solid var(--line-soft)}
+.qrow:last-child{border-bottom:none}
+.qrow .st{white-space:nowrap;margin-left:12px}
+.qrow .muted{color:var(--muted);font-size:12px}
+.lb-ava{width:42px;height:42px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line)}
+.place{font-size:18px;text-align:center;min-width:36px}
+#logBox{background:#060412;color:#c9b8f5;border:1px solid var(--line-soft);border-radius:10px;padding:14px;
+  min-height:320px;max-height:520px;overflow:auto;font-family:Consolas,Menlo,monospace;font-size:12.5px;white-space:pre-wrap}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.upload-box{border:2px dashed rgba(168,85,247,.3);border-radius:10px;padding:22px;text-align:center;
+  background:rgba(0,0,0,.25);transition:border-color .2s,background .2s}
+.upload-box.drag{border-color:var(--accent);background:var(--accent-dim)}
+.upload-box input[type=file]{margin:12px 0}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:24px;line-height:1.8}
+footer b{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="splash-inner">
+    <img src="/static/logo.png" class="splash-logo" alt="Alternative">
+    <div class="splash-title">ALTERNATIVE PANEL</div>
+    <div class="splash-sub">Assetto Corsa Hosting Panel</div>
+    <div class="splash-bar"><div class="splash-fill" id="splashFill"></div></div>
+    <div class="splash-row"><span id="splashText">Подключаемся к серверу...</span><span id="splashPct">0%</span></div>
+    <div class="splash-credit">Developed by <b>Spotik</b>, with love! 💜</div>
+  </div>
+</div>
+
+<header class="top">
+  <div class="brand"><img src="/static/logo.png" class="header-logo" alt="AP"> <span><b>AP</b> · Alternative Panel</span> <span class="ver">v8.2</span></div>
+  <div class="top-actions">
+    {% if running %}
+      <span class="status online"><span class="dot"></span>ONLINE</span>
+    {% else %}
+      <span class="status offline"><span class="dot"></span>OFFLINE</span>
+    {% endif %}
+    {% if can_edit %}
+    <form method="POST" action="/start" style="display:inline"><input type="hidden" name="srv" value="{{ srv }}"><button class="btn-primary" type="submit">▶ Старт</button></form>
+    <form method="POST" action="/restart" style="display:inline"><input type="hidden" name="srv" value="{{ srv }}"><button type="submit">↻ Перезапуск</button></form>
+    <form method="POST" action="/stop" style="display:inline"><input type="hidden" name="srv" value="{{ srv }}"><button class="btn-danger" type="submit">⏹ Стоп</button></form>
+    {% endif %}
+    <span class="user"><img class="header-ava fade" src="/avatar/{{ username|urlencode }}" alt=""> {{ username }} · <a href="/logout">выйти</a></span>
+  </div>
+</header>
+  <div class="srvbar" style="display:flex;gap:8px;align-items:center;padding:10px 14px;flex-wrap:wrap;border-bottom:1px solid rgba(170,140,255,.15)">
+    {% for sv in servers %}
+    <a href="/?srv={{ sv.id }}" title="{{ sv.name or sv.label }}{% if not sv.exists %} (не создан){% endif %}" style="display:inline-block;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600;border:1px solid rgba(170,140,255,.25);color:#f1eaff;background:rgba(26,20,46,.78){% if sv.id == srv %};background:#7c3aed;border-color:#7c3aed{% endif %}"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:{{ 'limegreen' if sv.running else '#666' }};margin-right:6px"></span>{{ sv.label }}{% if not sv.exists %} ✚{% endif %}</a>
+    {% endfor %}
+    {% if is_admin and setup_needed %}
+    <form method="POST" action="/setup_pub" style="display:inline;margin:0" onsubmit="return confirm('Создать папки и конфиги публичных серверов?')"><button type="submit">＋ Создать паблики</button></form>
+    {% endif %}
+    {% if not can_edit %}<span class="hint">Только просмотр — паблики настраивает админ</span>{% endif %}
+  </div>
+
+<div class="sysbar">
+  <span>🖥️ CPU <b id="stCpu">…</b></span>
+  <span>🧠 RAM <b id="stRam">…</b></span>
+  <span>💽 SSD <b id="stDisk">…</b></span>
+  <span>⏱️ Up <b id="stUp">…</b></span>
+  <span class="sys-spacer"></span>
+  <span>👥 На сервере: <b id="stOnline">…</b></span>
+</div>
+
+<nav class="tabs">
+  <button class="tab-btn" data-tab="tab-race">🏁 Гонка</button>
+  <button class="tab-btn" data-tab="tab-cars">🚗 Машины и слоты</button>
+  <button class="tab-btn" data-tab="tab-server">⚙️ Сервер</button>
+  <button class="tab-btn" data-tab="tab-mods">📦 Моды</button>
+  <button class="tab-btn" data-tab="tab-logs">📜 Логи</button>
+  <button class="tab-btn" data-tab="tab-profile">👤 Профиль</button>
+  <button class="tab-btn" data-tab="tab-leaderboard">🏆 Лидерборд</button>
+  {% if is_admin %}
+  <button class="tab-btn" data-tab="tab-requests">📝 Заявки{% if pending_users %} <span class="pill">{{ pending_users|length }}</span>{% endif %}</button>
+  {% endif %}
+</nav>
+
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="flash {{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- ============ ГОНКА ============ -->
+  <section class="tab-section" id="tab-race">
+    <form method="POST" action="/save">
+    <input type="hidden" name="form_tab" value="race">
+    <input type="hidden" name="srv" value="{{ srv }}">
+    <div class="card">
+      <h2>🏁 Трасса</h2>
+      <p class="hint">Выбери трассу из установленных на сервере — впечатывать ничего не нужно. Новые трассы ставятся во вкладке «Моды».</p>
+      <div class="track-hero">
+        <img id="trackImg" class="track-img fade" src="/img/track/{{ cfg.track|urlencode }}" alt="Превью трассы" draggable="false">
+        <div class="track-meta">
+          <div class="track-name" id="trackName">—</div>
+          <div class="track-desc" id="trackDesc"></div>
+          <div class="track-tags" id="trackTags"></div>
+        </div>
+      </div>
+      <input type="text" id="trackSearch" class="search" placeholder="🔍 Быстрый поиск трассы...">
+      <div class="grid g2">
+        <label class="f"><span>Трасса</span>
+          <select name="track" id="trackSelect">
+            {% for t in tracks %}
+              <option value="{{ t.id }}" {% if cfg.track == t.id %}selected{% endif %}>{{ t.name }} ({{ t.id }})</option>
+            {% endfor %}
+            {% if not tracks %}
+              <option value="">— трассы не найдены —</option>
+            {% endif %}
+          </select>
+        </label>
+        <label class="f"><span>Конфигурация трассы (layout)</span>
+          <input type="text" name="config_track" id="layoutInput" list="layoutList" value="{{ cfg.config_track }}" placeholder="пусто = стандартная">
+          <datalist id="layoutList"></datalist>
+        </label>
+      </div>
+      <p class="hint" id="layoutHint" style="margin-top:8px"></p>
+      <div class="grid g2">
+        <div class="f"><span>Время суток</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="time" id="todTime" value="" step="60">
+            <input type="range" id="todSlider" min="-80" max="80" step="1" value="16" style="flex:1;min-width:0">
+          </div>
+          <input type="hidden" name="sun_angle" id="sunAngleField" value="{{ cfg.sun_angle }}">
+          <p class="hint" id="todHint" style="margin:4px 0 0"></p>
+        </div>
+        <label class="f"><span>Погода</span>
+<select name="weather_graphics">
+            <option value="3_clear" {% if cfg.weather_graphics == '3_clear' %}selected{% endif %}>☀️ Ясно</option>
+            <option value="1_light_clouds" {% if cfg.weather_graphics == '1_light_clouds' %}selected{% endif %}>🌤️ Лёгкая облачность</option>
+            <option value="2_medium_clouds" {% if cfg.weather_graphics == '2_medium_clouds' %}selected{% endif %}>⛅ Облачно</option>
+            <option value="7_heavy_clouds" {% if cfg.weather_graphics == '7_heavy_clouds' %}selected{% endif %}>☁️ Пасмурно</option>
+            <option value="5_rain" {% if cfg.weather_graphics == '5_rain' %}selected{% endif %}>🌧️ Дождь</option>
+          </select>
+        </label>
+      </div>
+      <div class="grid g4" style="margin-top:12px">
+        <label class="f"><span>Темп. воздуха °C</span><input type="number" id="tempAmbient" name="temp_ambient" value="{{ cfg.temp_ambient }}"></label>
+        <label class="f"><span>Темп. трассы °C (итог)</span><input type="number" id="tempRoad" name="temp_road" value="{{ cfg.temp_road }}"></label>
+        <label class="f"><span>Ветер мин (км/ч)</span><input type="number" name="wind_min" value="{{ cfg.wind_min }}"></label>
+        <label class="f"><span>Ветер макс (км/ч)</span><input type="number" name="wind_max" value="{{ cfg.wind_max }}"></label>
+      </div>
+      <p class="hint" id="roadHint" style="margin-top:6px"></p>
+
+      <h3>Сессии</h3>
+      <div class="grid g3">
+        <div class="card" style="margin:0;background:rgba(0,0,0,.25);box-shadow:none">
+          <b>🏋️ Практика</b>
+          <label class="f" style="margin-top:10px"><span>Длительность (мин)</span><input type="number" name="practice_time" value="{{ cfg.practice_time }}" min="0"></label>
+          <label class="check" style="margin-top:10px"><input type="checkbox" name="practice_open" value="1" {% if cfg.practice_open == '1' %}checked{% endif %}><span>Сессия включена</span></label>
+        </div>
+        <div class="card" style="margin:0;background:rgba(0,0,0,.25);box-shadow:none">
+          <b>⏱️ Квалификация</b>
+          <label class="f" style="margin-top:10px"><span>Длительность (мин)</span><input type="number" name="qualify_time" value="{{ cfg.qualify_time }}" min="0"></label>
+          <label class="check" style="margin-top:10px"><input type="checkbox" name="qualify_open" value="1" {% if cfg.qualify_open == '1' %}checked{% endif %}><span>Сессия включена</span></label>
+        </div>
+        <div class="card" style="margin:0;background:rgba(0,0,0,.25);box-shadow:none">
+          <b>🏆 Гонка</b>
+          <label class="f" style="margin-top:10px"><span>Кругов (0 = гонка на время)</span><input type="number" name="race_laps" value="{{ cfg.race_laps }}" min="0"></label>
+          <label class="f" style="margin-top:10px"><span>Время гонки (мин, если круги = 0)</span><input type="number" name="race_time" value="{{ cfg.race_time }}" min="0"></label>
+          <label class="f" style="margin-top:10px"><span>Ожидание старта (сек)</span><input type="number" name="race_wait_time" value="{{ cfg.race_wait_time }}" min="0"></label>
+          <label class="check" style="margin-top:10px"><input type="checkbox" name="race_open" value="1" {% if cfg.race_open == '1' %}checked{% endif %}><span>Сессия включена</span></label>
+        </div>
+      </div>
+
+      <details class="adv">
+        <summary>🛞 Состояние трассы (Dynamic Track) — дополнительно</summary>
+        <div class="in grid g4">
+          <label class="f"><span>Держак на старте %</span><input type="number" name="dyn_start" value="{{ cfg.dyn_start }}" min="0" max="100"></label>
+          <label class="f"><span>Случайность</span><input type="number" name="dyn_randomness" value="{{ cfg.dyn_randomness }}" min="0" max="5"></label>
+          <label class="f"><span>Перенос между сессиями %</span><input type="number" name="dyn_transfer" value="{{ cfg.dyn_transfer }}" min="0" max="100"></label>
+          <label class="f"><span>Прирост за круг</span><input type="number" name="dyn_lap_gain" value="{{ cfg.dyn_lap_gain }}" min="0"></label>
+        </div>
+      </details>
+
+      {% if can_edit %}<div style="margin-top:18px"><button class="btn-primary" type="submit" style="width:100%">💾 Сохранить настройки гонки</button></div>{% else %}<p class="hint">🔒 Паблики настраивает только админ</p>{% endif %}
+    </div>
+    </form>
+    <div class="card">
+      <h2>👥 Сейчас на сервере <span class="badge" id="onlineCount">—</span></h2>
+      <p class="hint">Обновляется автоматически каждые 15 секунд.</p>
+      <div id="onlineBox"><p class="hint">Загрузка…</p></div>
+      <div class="toolbar" style="margin:12px 0 0"><button type="button" id="refreshOnline">↻ Обновить</button></div>
+    </div>
+  </section>
+
+  <!-- ============ СЕРВЕР ============ -->
+  <section class="tab-section" id="tab-server">
+    <div class="card">
+      <h2>📋 Как зайти друзьям</h2>
+      <p class="hint">Кинь другу ссылку — она сама откроет Content Manager и зайдёт на сервер (пароль уже вшит). Моды машин и трассы у друга должны стоять те же, иначе не пустит.</p>
+      <div class="invite">
+        <div class="invite-grid">
+          <div class="invite-item"><small>IP</small>{{ server_host }}</div>
+          <div class="invite-item"><small>HTTP-порт</small>{{ cfg.http_port }}</div>
+          <div class="invite-item"><small>Трасса</small>{{ track_name }}</div>
+          <div class="invite-item"><small>Вход</small>{% if cfg.password %}пароль: {{ cfg.password }}{% else %}без пароля{% endif %}</div>
+        </div>
+        <pre id="inviteText">{{ join_link }}</pre>
+        <div class="toolbar" style="margin:0">
+          <button type="button" class="btn-primary" id="copyInvite">📋 Скопировать ссылку</button>
+          <a class="btn" href="{{ join_link }}" target="_blank" rel="noopener">🔗 Открыть</a>
+          <span class="hint" id="copyStatus" style="margin:0"></span>
+        </div>
+      </div>
+    </div>
+    {% if is_admin and srv == 'main' %}
+    <div class="card">
+      <h2>📡 Диагностика трекера</h2>
+      <p class="hint">Данные идут по UDP-плагину acServer (имена, круги), HTTP — запасной путь. Если статистика не копится — причина будет видна здесь. Обновляется само раз в минуту.</p>
+      <div class="toolbar" style="margin:0 0 12px">
+        <button type="button" id="trkRefresh">↻ Обновить</button>
+        <button type="button" id="trkCopy">📋 Скопировать отчёт</button>
+        <span class="hint" id="trkCopyStatus" style="margin:0"></span>
+      </div>
+      <div id="trkBody"><p class="hint">Загрузка…</p></div>
+    </div>
+    {% endif %}
+    <form method="POST" action="/save">
+    <input type="hidden" name="form_tab" value="server">
+    <input type="hidden" name="srv" value="{{ srv }}">
+    <div class="card">
+      <h2>⚙️ Основные настройки</h2>
+      <p class="hint">Название, пароли и режим работы сервера.</p>
+      <div class="grid g2">
+        <label class="f"><span>Название сервера</span><input type="text" name="name" value="{{ cfg.name }}" placeholder="Мой супер сервер"></label>
+        <label class="f"><span>Макс. игроков</span><input type="number" name="max_clients" value="{{ cfg.max_clients }}" min="1" max="60"></label>
+      </div>
+      <div class="grid g2" style="margin-top:12px">
+        <label class="f"><span>Пароль для входа (пусто = без пароля)</span><input type="text" name="password" value="{{ cfg.password }}"></label>
+        <label class="f"><span>Пароль админа</span><input type="text" name="admin_password" value="{{ cfg.admin_password }}"></label>
+      </div>
+      <div class="grid g2" style="margin-top:12px">
+        <label class="check"><input type="checkbox" name="register_to_lobby" value="1" {% if cfg.register_to_lobby == '1' %}checked{% endif %}><span>Показывать в общем списке игры<small>Выключи, если хочешь сервер только для своих</small></span></label>
+        <label class="check"><input type="checkbox" name="pickup_mode" value="1" {% if cfg.pickup_mode == '1' %}checked{% endif %}><span>Pickup-режим (зашёл и поехал)<small>Игроки выбирают любую машину из списка CARS</small></span></label>
+        <label class="check"><input type="checkbox" name="locked_entry_list" value="1" {% if cfg.locked_entry_list == '1' %}checked{% endif %}><span>Закрытый entry list<small>Игроки занимают только созданные тобой слоты</small></span></label>
+        <label class="check"><input type="checkbox" name="loop_mode" value="1" {% if cfg.loop_mode == '1' %}checked{% endif %}><span>Loop-режим<small>Сервер крутит сессии по кругу без остановки</small></span></label>
+      </div>
+      <div class="grid g2" style="margin-top:12px">
+        <label class="f"><span>Режим списка игроков (см. карточку ниже)</span>
+          <select name="blacklist_mode"><option value="0" {% if cfg.blacklist_mode != '1' %}selected{% endif %}>0 — чёрный список (указанных НЕ пускать)</option><option value="1" {% if cfg.blacklist_mode == '1' %}selected{% endif %}>1 — белый список (пускать ТОЛЬКО указанных)</option></select>
+        </label>
+      </div>
+
+      <h3>Реализм</h3>
+      <div class="grid g3">
+        <label class="f"><span>Расход топлива %</span><input type="number" name="fuel_rate" value="{{ cfg.fuel_rate }}" min="0"></label>
+        <label class="f"><span>Урон %</span><input type="number" name="damage_multiplier" value="{{ cfg.damage_multiplier }}" min="0"></label>
+        <label class="f"><span>Износ шин %</span><input type="number" name="tyre_wear_rate" value="{{ cfg.tyre_wear_rate }}" min="0"></label>
+      </div>
+      <div class="grid g3" style="margin-top:12px">
+        <label class="f"><span>ABS</span>
+          <select name="abs_allowed"><option value="0" {% if cfg.abs_allowed=='0' %}selected{% endif %}>0 — запрещено</option><option value="1" {% if cfg.abs_allowed=='1' %}selected{% endif %}>1 — заводское</option><option value="2" {% if cfg.abs_allowed=='2' %}selected{% endif %}>2 — разрешено всем</option></select></label>
+        <label class="f"><span>Traction Control</span>
+          <select name="tc_allowed"><option value="0" {% if cfg.tc_allowed=='0' %}selected{% endif %}>0 — запрещено</option><option value="1" {% if cfg.tc_allowed=='1' %}selected{% endif %}>1 — заводское</option><option value="2" {% if cfg.tc_allowed=='2' %}selected{% endif %}>2 — разрешено всем</option></select></label>
+        <label class="f"><span>Stability Control</span>
+          <select name="stability_allowed"><option value="0" {% if cfg.stability_allowed=='0' %}selected{% endif %}>0 — запрещено</option><option value="1" {% if cfg.stability_allowed=='1' %}selected{% endif %}>1 — разрешено</option></select></label>
+        <label class="f"><span>Австутчепление</span>
+          <select name="autoclutch_allowed"><option value="0" {% if cfg.autoclutch_allowed=='0' %}selected{% endif %}>0 — запрещено</option><option value="1" {% if cfg.autoclutch_allowed=='1' %}selected{% endif %}>1 — разрешено</option></select></label>
+        <label class="f"><span>Грелки шин</span>
+          <select name="tyre_blankets_allowed"><option value="0" {% if cfg.tyre_blankets_allowed=='0' %}selected{% endif %}>0 — запрещено</option><option value="1" {% if cfg.tyre_blankets_allowed=='1' %}selected{% endif %}>1 — разрешено</option></select></label>
+        <label class="check"><input type="checkbox" name="force_virtual_mirror" value="1" {% if cfg.force_virtual_mirror=='1' %}checked{% endif %}><span>Виртуальное зеркало<small>Принудительно включить всем</small></span></label>
+      </div>
+
+      <details class="adv">
+        <summary>🔌 Порты и тайминги (не трогай, если всё работает)</summary>
+        <div class="in grid g4">
+          <label class="f"><span>UDP порт</span><input type="number" name="udp_port" value="{{ cfg.udp_port }}"></label>
+          <label class="f"><span>TCP порт</span><input type="number" name="tcp_port" value="{{ cfg.tcp_port }}"></label>
+          <label class="f"><span>HTTP порт</span><input type="number" name="http_port" value="{{ cfg.http_port }}"></label>
+          <label class="f"><span>Время после финиша (сек)</span><input type="number" name="race_over_time" value="{{ cfg.race_over_time }}"></label>
+        </div>
+      </details>
+
+      {% if can_edit %}<div style="margin-top:18px"><button class="btn-primary" type="submit" style="width:100%">💾 Сохранить настройки сервера</button></div>{% else %}<p class="hint">🔒 Паблики настраивает только админ</p>{% endif %}
+    </div>
+    </form>
+    <div class="card">
+      <h2>📋 Описание для Content Manager</h2>
+      <p class="hint">Карточка сервера в поиске CM: текст, картинки и ссылки (BB-коды). Пустое поле = выключено, имя сервера без значка ℹ. Применяется после перезапуска игрового сервера. Порт службы: {{ cm_port }} {% if cm_live %}🟢{% else %}🔴{% endif %}</p>
+      <form method="POST" action="/save_cmdesc">
+      <input type="hidden" name="srv" value="{{ srv }}">
+        <textarea name="cm_description" rows="10" style="font-family:Consolas,Menlo,monospace" placeholder="[size=22][b]Наш сервер[/b][/size]&#10;[url=https://discord.gg/xxxx]Наш Discord[/url]&#10;[img=https://.../logo.png]Логотип[/img]">{{ cm_description }}</textarea>
+        <p class="hint" id="cmDescCount" style="margin-top:6px"></p>
+        <details style="margin-top:6px"><summary>Шпаргалка по BB-кодам</summary>
+        <p class="hint">[b]жирный[/b] [i]курсив[/i] [u]подчёркнутый[/u] [size=18]размер[/size] [color=#FF424D]цвет[/color] [url=https://...]ссылка[/url] [img=https://.../pic.png]картинка[/img] — каждый тег закрыть! Переносы строк — как есть.</p>
+        </details>
+        {% if can_edit %}<div style="margin-top:12px"><button class="btn-primary" type="submit">💾 Сохранить описание</button></div>{% else %}<p class="hint">🔒 Паблики настраивает только админ</p>{% endif %}
+      </form>
+    </div>
+    <div class="card">
+      <h2>👋 Описание сервера и приветствие</h2>
+      <p class="hint">Этот текст игрок видит в чате при входе на сервер. Можно %name% — подставится ник, ссылки станут кликабельными сами. Карточка в поиске Content Manager настраивается отдельно — блок выше. Применяется после перезапуска игрового сервера.</p>
+      <form method="POST" action="/save_welcome">
+      <input type="hidden" name="srv" value="{{ srv }}">
+        <textarea name="welcome" rows="8" placeholder="Добро пожаловать на сервер, %name%! Уважай соперников 🏁">{{ welcome }}</textarea>
+        {% if can_edit %}<div style="margin-top:12px"><button class="btn-primary" type="submit">💾 Сохранить приветствие</button></div>{% else %}<p class="hint">🔒 Паблики настраивает только админ</p>{% endif %}
+      </form>
+    </div>
+    <div class="card">
+      <h2>⛔ Чёрный / белый список</h2>
+      <p class="hint">По одному SteamID64 (GUID) на строку. Узнать SteamID можно на сайте steamid.io — вставь ссылку на профиль. Режим списка выбирается выше в основных настройках. Применяется после перезапуска сервера.</p>
+      <form method="POST" action="/save_blacklist">
+      <input type="hidden" name="srv" value="{{ srv }}">
+        <textarea name="blacklist" rows="6" style="font-family:Consolas,Menlo,monospace" placeholder="76561198000000001&#10;76561198000000002">{{ blacklist }}</textarea>
+        {% if can_edit %}<div style="margin-top:12px"><button class="btn-primary" type="submit">💾 Сохранить список</button></div>{% else %}<p class="hint">🔒 Паблики настраивает только админ</p>{% endif %}
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ МАШИНЫ ============ -->
+  <section class="tab-section" id="tab-cars">
+    <div class="card">
+      <h2>🚗 Шаг 1 — выбери машины</h2>
+      <p class="hint">Отметь тумблерами машины и нажми «Создать слоты». Или редактируй слоты вручную ниже.</p>
+      <input type="text" id="carSearch" class="search" placeholder="🔍 Найти машину...">
+      <div class="car-grid">
+        {% for car in cars %}
+        <div class="car-card">
+          <img class="car-img fade" src="/img/car/{{ car.id|urlencode }}" alt="" loading="lazy" draggable="false">
+          <div class="car-body">
+            <b>{% if car.brand %}{{ car.brand }} {% endif %}{{ car.name }}</b>
+            <div class="meta"><span class="badge">{{ car.id }}</span></div>
+            <div class="meta">Скинов: {{ car.skins|length }} · {{ car.size }} МБ{% if car.bhp %} · {{ car.bhp }} л.с.{% endif %}</div>
+            <label><input type="checkbox" class="pick-car" value="{{ car.id }}"> выбрать</label>
+          </div>
+        </div>
+        {% endfor %}
+        {% if not cars %}<p class="hint">Машины не найдены. Загрузи их во вкладке «Моды».</p>{% endif %}
+      </div>
+      <div class="toolbar" style="margin-top:14px;margin-bottom:0">
+        <button type="button" id="fromPicked"{% if not can_edit %} disabled title="Только админ"{% endif %}>✨ Создать слоты из выбранных</button>
+        <button type="button" id="addSlot"{% if not can_edit %} disabled title="Только админ"{% endif %}>＋ Добавить пустой слот</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📋 Шаг 2 — слоты (entry_list)</h2>
+      <p class="hint">Каждый слот = одно место на сервере. Превью скина обновляется автоматически. При сохранении CARS и MAX_CLIENTS обновятся сами.</p>
+      <div id="entries"></div>
+      <div class="toolbar" style="margin-bottom:0">
+        <button class="btn-primary" type="button" id="saveEntries"{% if not can_edit %} disabled title="Только админ"{% endif %}>💾 Сохранить слоты</button>
+        <span class="hint" id="entriesStatus" style="margin:0"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ МОДЫ ============ -->
+  <section class="tab-section" id="tab-mods">
+    <div class="grid g2">
+    <div class="card">
+      <h2>🏁 Загрузка трассы</h2>
+      <p class="hint">Только трассы → <b>content/tracks</b>. Выбери один или несколько .zip/.rar или перетащи файлы мышкой в рамку — встанут по очереди. Паки тоже можно. Лимит — 10 ГБ.</p>
+      <form method="POST" action="/upload" enctype="multipart/form-data" id="modFormTrk">
+        <input type="hidden" name="mod_type" value="track">
+        <div class="upload-box" id="upBoxTrk">
+          <label class="f"><span>ZIP или RAR с трассой</span><input type="file" name="file" accept=".zip,.rar" id="modFileTrk" multiple required></label>
+          <p class="hint" style="margin:6px 0 0">…или перетащи файлы сюда 👆</p>
+          <button class="btn-primary" type="submit" id="upBtnTrk" style="margin-top:14px">⬆️ Загрузить трассу</button>
+          <p class="hint" id="fileHintTrk" style="margin:10px 0 0"></p>
+          <div id="upWrapTrk" style="display:none;margin-top:12px;text-align:left">
+            <div class="prog"><span id="upBarTrk"></span></div>
+            <p class="hint" id="upTextTrk" style="margin:8px 0 0"></p>
+          </div>
+          <div id="upQueueTrk" style="display:none;margin-top:10px;text-align:left"></div>
+        </div>
+      </form>
+    </div>
+    <div class="card">
+      <h2>🚗 Загрузка автомобилей</h2>
+      <p class="hint">Только автомобили → <b>content/cars</b>. Выбери один или несколько .zip/.rar или перетащи файлы мышкой в рамку — встанут по очереди. Паки тоже можно. Лимит — 10 ГБ.</p>
+      <form method="POST" action="/upload" enctype="multipart/form-data" id="modFormCar">
+        <input type="hidden" name="mod_type" value="car">
+        <div class="upload-box" id="upBoxCar">
+          <label class="f"><span>ZIP или RAR с машиной</span><input type="file" name="file" accept=".zip,.rar" id="modFileCar" multiple required></label>
+          <p class="hint" style="margin:6px 0 0">…или перетащи файлы сюда 👆</p>
+          <button class="btn-primary" type="submit" id="upBtnCar" style="margin-top:14px">⬆️ Загрузить машину</button>
+          <p class="hint" id="fileHintCar" style="margin:10px 0 0"></p>
+          <div id="upWrapCar" style="display:none;margin-top:12px;text-align:left">
+            <div class="prog"><span id="upBarCar"></span></div>
+            <p class="hint" id="upTextCar" style="margin:8px 0 0"></p>
+          </div>
+          <div id="upQueueCar" style="display:none;margin-top:10px;text-align:left"></div>
+        </div>
+      </form>
+    </div>
+    </div>
+    <div class="card">
+      <h2>🖼️ Свои превью для модов</h2>
+      <p class="hint">Если у мода нет встроенного превью (панель пишет «Нет превью в моде»), загрузи картинку сам — она будет показываться вместо заглушки. Имя папки — точное название из таблиц ниже (например bmw_m3_e30). Для машин можно указать конкретный скин.</p>
+      <form method="POST" action="/upload_preview" enctype="multipart/form-data">
+        <div class="grid g4">
+          <label class="f"><span>Тип</span>
+            <select name="mod_type"><option value="car">🚗 Машина</option><option value="track">🏁 Трасса</option></select>
+          </label>
+          <label class="f"><span>Имя папки мода</span><input type="text" name="name" list="modIds" required placeholder="bmw_m3_e30"></label>
+          <label class="f"><span>Скин (только машины)</span><input type="text" name="skin" placeholder="пусто = вся машина"></label>
+          <label class="f"><span>Картинка (JPG/PNG)</span><input type="file" name="file" accept=".jpg,.jpeg,.png,.webp" required></label>
+        </div>
+        <datalist id="modIds">{% for car in cars %}<option value="{{ car.id }}">{% endfor %}{% for t in tracks %}<option value="{{ t.id }}">{% endfor %}</datalist>
+        <div style="margin-top:12px"><button class="btn-primary" type="submit">🖼️ Сохранить превью</button></div>
+      </form>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h2>🚗 Установленные машины ({{ cars|length }})</h2>
+        <input type="text" id="modCarSearch" class="search" placeholder="🔍 Найти машину...">
+        <table class="list" id="modCarsTable">
+          <tr><th>Машина</th><th>Размер</th><th></th></tr>
+          {% for car in cars %}
+          <tr>
+            <td><div class="mod-row"><img class="thumb fade" src="/img/car/{{ car.id|urlencode }}" alt="" loading="lazy" draggable="false"><div><b>{{ car.name }}</b><br><span class="badge">{{ car.id }}</span></div></div></td>
+            <td>{{ car.size }} МБ</td>
+            <td><form method="POST" action="/delete_mod" onsubmit="return confirm('Удалить {{ car.id }}?')"><input type="hidden" name="mod_type" value="car"><input type="hidden" name="name" value="{{ car.id }}"><button class="btn-danger-sm" type="submit">Удалить</button></form></td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <div class="card">
+        <h2>🏁 Установленные трассы ({{ tracks|length }})</h2>
+        <input type="text" id="modTrackSearch" class="search" placeholder="🔍 Найти трассу...">
+        <table class="list" id="modTracksTable">
+          <tr><th>Трасса</th><th>Размер</th><th></th></tr>
+          {% for t in tracks %}
+          <tr>
+            <td><div class="mod-row"><img class="thumb fade" src="/img/track/{{ t.id|urlencode }}" alt="" loading="lazy" draggable="false"><div><b>{{ t.name }}</b><br><span class="badge">{{ t.id }}</span>{% if t.layouts %} <span class="badge">{{ t.layouts|join(', ') }}</span>{% endif %}</div></div></td>
+            <td>{{ t.size }} МБ</td>
+            <td><form method="POST" action="/delete_mod" onsubmit="return confirm('Удалить {{ t.id }}?')"><input type="hidden" name="mod_type" value="track"><input type="hidden" name="name" value="{{ t.id }}"><button class="btn-danger-sm" type="submit">Удалить</button></form></td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ЛОГИ ============ -->
+  <section class="tab-section" id="tab-logs">
+    <div class="card">
+      <h2>📜 Логи сервера</h2>
+      <p class="hint">Если сервер не виден в игре или вылетает — причина почти всегда написана здесь.</p>
+      <div class="toolbar">
+        <button type="button" id="refreshLogs">↻ Обновить</button>
+        <label class="check" style="padding:6px 12px"><input type="checkbox" id="autoLog" checked><span>Автообновление</span></label>
+        <select id="logLines" style="width:auto"><option value="100">100 строк</option><option value="200" selected>200 строк</option><option value="500">500 строк</option></select>
+        <a class="btn" href="/download_log">📥 Скачать</a>
+        {% if can_edit %}<form method="POST" action="/clear_log" style="display:inline" onsubmit="return confirm('Очистить лог-файл?')"><input type="hidden" name="srv" value="{{ srv }}"><button type="submit">🗑️ Очистить</button></form>{% endif %}
+      </div>
+      <pre id="logBox">Загрузка…</pre>
+    </div>
+  </section>
+
+  <!-- ============ ПРОФИЛЬ ============ -->
+  <section class="tab-section" id="tab-profile">
+    <div class="card">
+      <h2>👤 Мой профиль</h2>
+      <p class="hint">Логин: <b>{{ username }}</b>. Заполни ник и SteamID — и панель начнёт показывать твою статистику.</p>
+      <div class="prof-top">
+        <img class="prof-avatar fade" src="/avatar/{{ username|urlencode }}" alt="Аватарка">
+        <form method="POST" action="/upload_avatar" enctype="multipart/form-data" class="prof-ava-form">
+          <label class="f"><span>Аватарка (только PNG, до 2 МБ)</span><input type="file" name="file" accept=".png" required></label>
+          <button class="btn-primary" type="submit" style="margin-top:10px">⬆️ Загрузить аватарку</button>
+        </form>
+      </div>
+      <form method="POST" action="/save_profile">
+        <div class="grid g2">
+          <label class="f"><span>Ник в игре (точно как на сервере)</span><input type="text" name="nick" value="{{ profile.nick }}" maxlength="30" required placeholder="Spotik"></label>
+          <label class="f"><span>SteamID64</span><input type="text" name="steamid" value="{{ profile.steamid }}" required placeholder="76561198..."></label>
+        </div>
+        <p class="hint" style="margin-top:8px">Узнать SteamID: <a href="https://steamid.io" target="_blank" rel="noopener">steamid.io</a> — вставь ссылку на свой профиль Steam.</p>
+        <button class="btn-primary" type="submit">💾 Сохранить профиль</button>
+      </form>
+    </div>
+    <div class="card">
+      <h2>📊 Моя статистика</h2>
+      {% if my_stats.linked %}
+        <p class="hint">Связано {% if my_stats.via == 'steamid' %}через SteamID ✅{% else %}по нику «{{ my_stats.nick }}»{% endif %} · Данные обновляются каждую минуту, пока панель запущена.</p>
+        {% if not my_stats.has_time %}
+        <p class="hint">⏳ Пока пусто: поиграй на сервере пару минут — время начнёт копиться. Если играл, но пусто — проверь, что ник в профиле совпадает с игровым буква в букву.</p>
+        {% endif %}
+        <div class="tiles">
+          <div class="tile"><small>Время в игре</small><b>{{ my_stats.time_str }}</b></div>
+          <div class="tile"><small>Дней в игре</small><b>{{ my_stats.days }}</b></div>
+          <div class="tile"><small>Последний визит</small><b>{{ my_stats.last_ago }}</b></div>
+          <div class="tile"><small>Любимая трасса</small>{% if my_stats.fav_track != '—' %}<img class="tile-img fade" src="/img/track/{{ my_stats.fav_track|urlencode }}" alt="" loading="lazy" draggable="false">{% endif %}<b class="ellipsis" title="{{ my_stats.fav_track }}">{{ my_stats.fav_track }}</b></div>
+          <div class="tile"><small>Любимая машина</small>{% if my_stats.fav_car != '—' %}<img class="tile-img fade" src="/img/car/{{ my_stats.fav_car|urlencode }}" alt="" loading="lazy" draggable="false">{% endif %}<b class="ellipsis" title="{{ my_stats.fav_car }}">{{ my_stats.fav_car }}</b></div>
+          <div class="tile"><small>Любимая связка</small>{% if my_stats.fav_combo_track %}<div class="tile-imgs"><img class="fade" src="/img/track/{{ my_stats.fav_combo_track|urlencode }}" alt="" loading="lazy" draggable="false"><img class="fade" src="/img/car/{{ my_stats.fav_combo_car|urlencode }}" alt="" loading="lazy" draggable="false"></div>{% endif %}<b class="ellipsis" title="{{ my_stats.fav_combo }}">{{ my_stats.fav_combo }}</b></div>
+        </div>
+        <div class="grid g2">
+          <div>
+            <h3>По трассам</h3>
+            {% for t in my_stats.tracks %}
+            <div class="stat-row"><span>{{ t.name }}</span><div class="bar"><span style="width:{{ t.pct }}%"></span></div><b>{{ t.str }}</b></div>
+            {% endfor %}
+            {% if not my_stats.tracks %}<p class="hint">—</p>{% endif %}
+          </div>
+          <div>
+            <h3>По машинам</h3>
+            {% for c in my_stats.cars %}
+            <div class="stat-row"><span>{{ c.name }}</span><div class="bar"><span style="width:{{ c.pct }}%"></span></div><b>{{ c.str }}</b></div>
+            {% endfor %}
+            {% if not my_stats.cars %}<p class="hint">—</p>{% endif %}
+          </div>
+        </div>
+        {% if my_stats.bests %}
+        <h3>🏁 Лучшие круги</h3>
+        <table class="list">
+          <tr><th>Трасса</th><th>Машина</th><th>Время</th></tr>
+          {% for b in my_stats.bests %}
+          <tr><td>{{ b.track }}</td><td>{{ b.car }}</td><td><b>{{ b.time }}</b></td></tr>
+          {% endfor %}
+        </table>
+        {% endif %}
+      {% else %}
+        <p class="hint" style="margin:0">Пока пусто 😴 Заполни ник и SteamID выше и поиграй на сервере под этим ником — статистика появится в течение пары минут.</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- ============ ЛИДЕРБОРД ============ -->
+  <section class="tab-section" id="tab-leaderboard">
+    <div class="card">
+      <h2>🏆 Лидерборд</h2>
+      <p class="hint">Чем больше времени на сервере — тем выше место. Обновляется каждую минуту.</p>
+      <table class="list">
+        <tr><th>#</th><th>Игрок</th><th>SteamID</th><th>Время</th><th>Любимая машина</th><th>Был(а)</th></tr>
+        {% for r in leaderboard %}
+        <tr class="{% if r.username == username %}me{% endif %}">
+          <td class="place">{% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}</td>
+          <td><div class="mod-row"><img class="lb-ava fade" src="/avatar/{{ r.username|urlencode }}" alt="" loading="lazy" draggable="false"><div><b><a href="/pilot/{{ r.username|urlencode }}">{{ r.nick or r.username }}</a></b><br><span class="badge">{{ r.username }}</span></div></div></td>
+          <td>{% if r.steamid %}<a href="https://steamcommunity.com/profiles/{{ r.steamid }}" target="_blank" rel="noopener">{{ r.steamid }}</a>{% else %}—{% endif %}</td>
+          <td><b>{{ r.time_str }}</b></td>
+          <td>{{ r.fav_car }}</td>
+          <td>{{ r.last_ago }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </section>
+
+  {% if is_admin %}
+  <!-- ============ ЗАЯВКИ (админ) ============ -->
+  <section class="tab-section" id="tab-requests">
+    <div class="card">
+      <h2>📝 Заявки на доступ ({{ pending_users|length }})</h2>
+      {% if pending_users %}
+      <p class="hint">Новые пользователи ждут подтверждения. После одобрения панель у них откроется сама.</p>
+      <table class="list">
+        <tr><th>Логин</th><th>Дата заявки</th><th></th></tr>
+        {% for p in pending_users %}
+        <tr>
+          <td><b>{{ p.name }}</b></td>
+          <td>{{ p.created }}</td>
+          <td>
+            <div class="toolbar" style="margin:0">
+              <form method="POST" action="/approve" style="display:inline"><input type="hidden" name="username" value="{{ p.name }}"><button class="btn-primary" type="submit">✅ Одобрить</button></form>
+              <form method="POST" action="/reject" style="display:inline" onsubmit="return confirm('Отклонить заявку {{ p.name }}?')"><input type="hidden" name="username" value="{{ p.name }}"><button class="btn-danger" type="submit">✕ Отклонить</button></form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}
+      <p class="hint" style="margin:0">Новых заявок нет. Отдыхай 😎</p>
+      {% endif %}
+    </div>
+    <div class="card">
+      <h2>👥 Все пользователи ({{ all_users|length }})</h2>
+      <table class="list">
+        <tr><th>Логин</th><th>Роль</th><th>Статус</th><th>Создан</th><th></th></tr>
+        {% for a in all_users %}
+        <tr>
+          <td><b>{{ a.name }}</b></td>
+          <td><span class="badge">{{ a.role }}</span></td>
+          <td><span class="badge">{{ a.status }}</span></td>
+          <td>{{ a.created }}</td>
+          <td>{% if a.name != username %}<form method="POST" action="/delete_user" onsubmit="return confirm('Удалить {{ a.name }}?')"><input type="hidden" name="username" value="{{ a.name }}"><button class="btn-danger-sm" type="submit">Удалить</button></form>{% else %}<span class="badge">это ты</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    <div class="card">
+      <h2>🔐 Смена пароля администратора</h2>
+      <p class="hint">Никому не показывай этот пароль — он даёт полный доступ к панели.</p>
+      <form method="POST" action="/change_admin_password">
+        <div class="grid g3">
+          <label class="f"><span>Текущий пароль</span><input type="password" name="current" required></label>
+          <label class="f"><span>Новый пароль</span><input type="password" name="new" required></label>
+          <label class="f"><span>Повтори новый</span><input type="password" name="confirm" required></label>
+        </div>
+        <div style="margin-top:12px"><button class="btn-primary" type="submit">Сменить пароль</button></div>
+      </form>
+    </div>
+  </section>
+  {% endif %}
+</div>
+
+<footer>AP — Alternative Assetto Corsa Hosting Panel<br>Developed by <b>Spotik</b>, with love! 💜</footer>
+
+<script>
+// ---------- splash ----------
+(function(){
+  const sp = document.getElementById('splash');
+  if(!sp) return;
+  const fill = document.getElementById('splashFill');
+  const txt = document.getElementById('splashText');
+  const pct = document.getElementById('splashPct');
+  const lines = ['Подключаемся к серверу...','Читаем конфиги...','Полируем диски...','Греем шины...','Калибруем спойлер...','Почти готово...'];
+  let p = 0, li = 0, done = false;
+  const timer = setInterval(() => {
+    p = Math.min(100, p + 4 + Math.random() * 9);
+    fill.style.width = p + '%';
+    pct.textContent = Math.floor(p) + '%';
+    if(li < lines.length - 1 && p > (li + 1) * (100 / lines.length)){ li++; txt.textContent = lines[li]; }
+    if(p >= 100){ finish(); }
+  }, 110);
+  function finish(){
+    if(done) return; done = true;
+    clearInterval(timer);
+    setTimeout(() => { sp.classList.add('hide'); setTimeout(() => sp.remove(), 600); }, 250);
+  }
+  sp.addEventListener('click', finish);
+  setTimeout(finish, 4000);
+})();
+
+// ---------- вкладки ----------
+const tabBtns = document.querySelectorAll('.tab-btn');
+const sections = document.querySelectorAll('.tab-section');
+function showTab(id){
+  sections.forEach(s => s.classList.toggle('active', s.id === id));
+  tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  try{ localStorage.setItem('ac_tab', id); }catch(e){}
+  try{ if(history.replaceState) history.replaceState(null, '', '#' + id); }catch(e){}
+}
+tabBtns.forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+(function(){
+  let init = (location.hash || '').replace('#', '');
+  if(!document.getElementById(init)){ try{ init = localStorage.getItem('ac_tab') || 'tab-race'; }catch(e){ init = 'tab-race'; } }
+  if(!document.getElementById(init)) init = 'tab-race';
+  showTab(init);
+})();
+
+// ---------- плавное появление картинок ----------
+document.addEventListener('load', function(e){
+  const t = e.target;
+  if(t && t.tagName === 'IMG') t.classList.add('loaded');
+}, true);
+
+function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ---------- трассы: layouts + hero ----------
+const TRACKS = {{ tracks|tojson }};
+const LAYOUTS = {{ track_layouts|tojson }};
+const trackSel = document.getElementById('trackSelect');
+const layoutList = document.getElementById('layoutList');
+function updateLayouts(){
+  if(!trackSel) return;
+  const t = trackSel.value;
+  layoutList.innerHTML = '';
+  (LAYOUTS[t] || []).forEach(l => { const o = document.createElement('option'); o.value = l; layoutList.appendChild(o); });
+  document.getElementById('layoutHint').textContent = (LAYOUTS[t] || []).length
+    ? 'Найденные конфигурации: ' + LAYOUTS[t].join(', ') + ' — выбери из подсказок или оставь пустым.'
+    : 'Конфигураций не найдено — оставь поле пустым для стандартной версии трассы.';
+}
+function updateTrackHero(){
+  if(!trackSel) return;
+  const t = trackSel.value;
+  let info = null;
+  TRACKS.forEach(x => { if(x.id === t) info = x; });
+  const img = document.getElementById('trackImg');
+  if(img){ img.classList.remove('loaded'); img.src = '/img/track/' + encodeURIComponent(t); }
+  document.getElementById('trackName').textContent = info ? info.name : t;
+  document.getElementById('trackDesc').textContent = (info && info.description) ? info.description : 'Описание отсутствует в файлах трассы.';
+  const tags = [];
+  if(info){
+    tags.push(t);
+    if(info.length) tags.push('Длина: ' + info.length + ' м');
+    if(info.size) tags.push(info.size + ' МБ');
+  }
+  document.getElementById('trackTags').innerHTML = tags.map(x => '<span class="badge">' + esc(x) + '</span>').join(' ');
+}
+if(trackSel){
+  trackSel.addEventListener('change', function(){ updateLayouts(); updateTrackHero(); });
+  updateLayouts(); updateTrackHero();
+}
+
+// ---------- поиск / фильтры ----------
+function bindRowFilter(inputId, tableId){
+  const inp = document.getElementById(inputId);
+  const tbl = document.getElementById(tableId);
+  if(!inp || !tbl) return;
+  inp.addEventListener('input', () => {
+    const q = inp.value.trim().toLowerCase();
+    tbl.querySelectorAll('tr').forEach((tr, i) => {
+      if(i === 0) return;
+      tr.style.display = (!q || tr.textContent.toLowerCase().includes(q)) ? '' : 'none';
+    });
+  });
+}
+bindRowFilter('modCarSearch', 'modCarsTable');
+bindRowFilter('modTrackSearch', 'modTracksTable');
+(function(){
+  const inp = document.getElementById('carSearch');
+  if(!inp) return;
+  inp.addEventListener('input', () => {
+    const q = inp.value.trim().toLowerCase();
+    document.querySelectorAll('.car-card').forEach(el => {
+      el.style.display = (!q || el.textContent.toLowerCase().includes(q)) ? '' : 'none';
+    });
+  });
+})();
+(function(){
+  const inp = document.getElementById('trackSearch');
+  if(!inp || !trackSel) return;
+  inp.addEventListener('input', () => {
+    const q = inp.value.trim().toLowerCase();
+    Array.from(trackSel.options).forEach(o => { o.hidden = !(!q || o.text.toLowerCase().includes(q)); });
+  });
+})();
+
+// ---------- слоты ----------
+const CARS = {{ cars|tojson }};
+const SKINS = {};
+CARS.forEach(c => SKINS[c.id] = c.skins || []);
+let ENTRIES = {{ entries|tojson }};
+  const SRV = "{{ srv }}";
+  // ---------- время суток <-> SUN_ANGLE (0 = 13:00, 16 ед. = 1 час) ----------
+  function angleToHM(a) {
+    let mins = 13 * 60 + Math.round(a * 60 / 16);
+    mins = ((mins % 1440) + 1440) % 1440;
+    return String(Math.floor(mins / 60)).padStart(2, '0') + ':' + String(mins % 60).padStart(2, '0');
+  }
+  function hmToAngle(hm) {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(hm || '');
+    if (!m) return null;
+    return Math.round(((+m[1]) * 3600 + (+m[2]) * 60 - 46800) / 225);
+  }
+  (function initTOD() {
+    const t = document.getElementById('todTime'), sl = document.getElementById('todSlider'),
+          f = document.getElementById('sunAngleField'), h = document.getElementById('todHint');
+    if (!t || !sl || !f) return;
+    function render() {
+      const a = parseFloat(f.value);
+      if (isNaN(a)) { h.textContent = 'Угол не задан'; return; }
+      h.textContent = 'Угол: ' + f.value + ' (≈' + angleToHM(a) + ')';
+      if (a >= -80 && a <= 80) { sl.value = Math.round(a); t.value = angleToHM(a); }
+      else { t.value = ''; }
+    }
+    t.addEventListener('change', () => { const a = hmToAngle(t.value); if (a !== null) { f.value = a; render(); } });
+    sl.addEventListener('input', () => { f.value = sl.value; render(); });
+    render();
+  })();
+  // ---------- счётчик описания CM ----------
+  (function initCMDesc() {
+    const t = document.querySelector('textarea[name="cm_description"]'),
+          h = document.getElementById('cmDescCount');
+    if (!t || !h) return;
+    function render() { h.textContent = 'Символов: ' + t.value.length + (t.value.trim() ? '' : ' (пусто — значок ℹ к имени не добавится)'); }
+    t.addEventListener('input', render); render();
+  })();
+  // ---------- дорога = воздух + поправка: живой итог ----------
+  (function initRoadHint() {
+    const a = document.getElementById('tempAmbient'), r = document.getElementById('tempRoad'),
+          h = document.getElementById('roadHint');
+    if (!a || !r || !h) return;
+    function render() {
+      const av = parseFloat((a.value || '').replace(',', '.')), rv = parseFloat((r.value || '').replace(',', '.'));
+      if (isNaN(av) || isNaN(rv)) { h.textContent = 'Сервер считает итог как «воздух + поправка» — панель пересчитает сама.'; return; }
+      const off = rv - av;
+      h.textContent = 'Итог на трассе ≈ ' + (+rv.toFixed(1)) + '° (воздух ' + (+av.toFixed(1)) + ' + поправка ' + (off >= 0 ? '+' : '') + (+off.toFixed(1)) + '). В конфиг запишется поправка.';
+    }
+    a.addEventListener('input', render); r.addEventListener('input', render); render();
+  })();
+function carOptions(sel){
+  let h = '<option value="">— выбери машину —</option>';
+  CARS.forEach(c => { h += '<option value="' + esc(c.id) + '"' + (c.id === sel ? ' selected' : '') + '>' + esc(c.name) + ' (' + esc(c.id) + ')</option>'; });
+  return h;
+}
+function skinOptions(model, sel){
+  const skins = SKINS[model] || [];
+  if(!skins.length) return '<option value="">(нет скинов)</option>';
+  let h = '';
+  skins.forEach(s => { h += '<option value="' + esc(s) + '"' + (s === sel ? ' selected' : '') + '>' + esc(s) + '</option>'; });
+  return h;
+}
+function slotImgSrc(model, skin){
+  return '/img/car/' + encodeURIComponent(model || '') + '/' + encodeURIComponent(skin || '');
+}
+function renderEntries(){
+  const box = document.getElementById('entries');
+  if(!ENTRIES.length){ box.innerHTML = '<p class="hint">Слотов пока нет. Выбери машины выше или добавь пустой слот.</p>'; return; }
+  let h = '';
+  ENTRIES.forEach((e, i) => {
+    h += '<div class="slot" data-i="' + i + '">'
+      + '<div class="slot-head"><span class="num">Слот ' + (i + 1) + '</span>'
+      + '<button type="button" class="btn-danger-sm" onclick="delEntry(' + i + ')">✕ Убрать</button></div>'
+      + '<div class="slot-top">'
+      + '<img class="slot-img fade" src="' + slotImgSrc(e.MODEL, e.SKIN) + '" alt="" draggable="false">'
+      + '<div class="slot-picks">'
+      + '<label class="f"><span>Машина</span><select class="e-model">' + carOptions(e.MODEL) + '</select></label>'
+      + '<label class="f"><span>Скин</span><select class="e-skin">' + skinOptions(e.MODEL, e.SKIN) + '</select></label>'
+      + '</div></div>'
+      + '<div class="grid g4">'
+      + '<label class="f"><span>Пилот</span><input type="text" class="e-driver" value="' + esc(e.DRIVERNAME) + '" placeholder="пусто = любой"></label>'
+      + '<label class="f"><span>Команда</span><input type="text" class="e-team" value="' + esc(e.TEAM) + '"></label>'
+      + '<label class="f"><span>Балласт (кг)</span><input type="number" class="e-ballast" value="' + esc(e.BALLAST || '0') + '"></label>'
+      + '<label class="f"><span>Рестриктор %</span><input type="number" class="e-restrictor" value="' + esc(e.RESTRICTOR || '0') + '"></label>'
+      + '</div><div class="grid g2" style="margin-top:10px">'
+      + '<label class="f"><span>GUID (SteamID для привязки слота)</span><input type="text" class="e-guid" value="' + esc(e.GUID) + '"></label>'
+      + '<label class="check"><input type="checkbox" class="e-spec"' + (String(e.SPECTATOR_MODE) === '1' ? ' checked' : '') + '><span>Зритель<small>Слот для наблюдения</small></span></label>'
+      + '</div></div>';
+  });
+  box.innerHTML = h;
+  box.querySelectorAll('.slot').forEach(slot => {
+    const modelSel = slot.querySelector('.e-model');
+    const skinSel = slot.querySelector('.e-skin');
+    const img = slot.querySelector('.slot-img');
+    const updImg = () => { img.classList.remove('loaded'); img.src = slotImgSrc(modelSel.value, skinSel.value); };
+    modelSel.addEventListener('change', () => {
+      const skins = SKINS[modelSel.value] || [];
+      skinSel.innerHTML = skinOptions(modelSel.value, skins[0] || '');
+      updImg();
+    });
+    skinSel.addEventListener('change', updImg);
+  });
+}
+function delEntry(i){ ENTRIES.splice(i, 1); renderEntries(); }
+document.getElementById('addSlot').addEventListener('click', () => {
+  ENTRIES.push({MODEL:'', SKIN:'', SPECTATOR_MODE:'0', DRIVERNAME:'', TEAM:'', GUID:'', BALLAST:'0', RESTRICTOR:'0'});
+  renderEntries();
+});
+document.getElementById('fromPicked').addEventListener('click', () => {
+  const picked = Array.from(document.querySelectorAll('.pick-car:checked')).map(c => c.value);
+  if(!picked.length){ alert('Сначала отметь тумблерами хотя бы одну машину выше.'); return; }
+  ENTRIES = picked.map(m => ({MODEL: m, SKIN: (SKINS[m] || [])[0] || '', SPECTATOR_MODE:'0', DRIVERNAME:'', TEAM:'', GUID:'', BALLAST:'0', RESTRICTOR:'0'}));
+  renderEntries();
+  document.getElementById('entriesStatus').textContent = 'Слоты сформированы (' + ENTRIES.length + '). Не забудь нажать «Сохранить слоты».';
+});
+document.getElementById('saveEntries').addEventListener('click', async () => {
+  const rows = [];
+  document.querySelectorAll('#entries .slot').forEach(slot => {
+    rows.push({
+      MODEL: slot.querySelector('.e-model').value,
+      SKIN: slot.querySelector('.e-skin').value,
+      DRIVERNAME: slot.querySelector('.e-driver').value,
+      TEAM: slot.querySelector('.e-team').value,
+      BALLAST: slot.querySelector('.e-ballast').value,
+      RESTRICTOR: slot.querySelector('.e-restrictor').value,
+      GUID: slot.querySelector('.e-guid').value,
+      SPECTATOR_MODE: slot.querySelector('.e-spec').checked ? '1' : '0'
+    });
+  });
+  const st = document.getElementById('entriesStatus');
+  st.textContent = 'Сохранение…';
+  try{
+    const r = await fetch('/save_entries', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({srv: SRV, entries: rows})});
+    const j = await r.json();
+    st.textContent = j.ok ? '✅ Сохранено слотов: ' + j.count + '. CARS и MAX_CLIENTS обновлены. Перезапусти сервер.' : 'Ошибка сохранения';
+  }catch(e){ st.textContent = 'Ошибка: ' + e; }
+});
+renderEntries();
+
+// ---------- подсветка выбранных машин ----------
+document.querySelectorAll('.pick-car').forEach(cb => cb.addEventListener('change', () => {
+  cb.closest('.car-card').classList.toggle('sel', cb.checked);
+}));
+
+// ---------- загрузка модов: две рамки (трассы / машины), у каждой свой drag&drop и прогресс ----------
+function fmtSize(b){
+  if(b >= 1073741824) return (b / 1073741824).toFixed(2) + ' ГБ';
+  if(b >= 1048576) return (b / 1048576).toFixed(1) + ' МБ';
+  if(b >= 1024) return (b / 1024).toFixed(0) + ' КБ';
+  return b + ' Б';
+}
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function wireUpload(pfx, bigLabel){
+  const form = document.getElementById('modForm' + pfx);
+  const fileInput = document.getElementById('modFile' + pfx);
+  const box = document.getElementById('upBox' + pfx);
+  if(!form || !fileInput || !box) return;
+  const hint = document.getElementById('fileHint' + pfx);
+  const btn = document.getElementById('upBtn' + pfx);
+  const wrap = document.getElementById('upWrap' + pfx);
+  const bar = document.getElementById('upBar' + pfx);
+  const txt = document.getElementById('upText' + pfx);
+  const queue = document.getElementById('upQueue' + pfx);
+  let busy = false;
+  function showHint(){
+    if(busy) return;
+    const files = Array.from(fileInput.files || []);
+    queue.innerHTML = '';
+    queue.style.display = 'none';
+    if(!files.length){ hint.textContent = ''; return; }
+    if(files.length === 1){
+      hint.textContent = 'Выбран: ' + files[0].name + ' (' + fmtSize(files[0].size) + '). Загрузка ' + bigLabel + ' может занять пару минут — не закрывай страницу.';
+    } else {
+      const total = files.reduce((a,f) => a + f.size, 0);
+      hint.textContent = 'Выбрано файлов: ' + files.length + ' (' + fmtSize(total) + '). Встанут по очереди, один за другим: ' + files.map(f => f.name).join(', ');
+    }
+  }
+  fileInput.addEventListener('change', showHint);
+  ['dragenter','dragover'].forEach(ev => box.addEventListener(ev, e => { e.preventDefault(); box.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(ev => box.addEventListener(ev, e => { e.preventDefault(); box.classList.remove('drag'); }));
+  box.addEventListener('drop', e => {
+    if(e.dataTransfer.files.length){ fileInput.files = e.dataTransfer.files; showHint(); }
+  });
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if(busy) return;
+    const files = Array.from(fileInput.files || []);
+    if(!files.length) return;
+    busy = true;
+    btn.disabled = true;
+    wrap.style.display = 'block';
+    queue.style.display = 'block';
+    queue.innerHTML = files.map((f,i) => '<div class="qrow"><span>#' + (i+1) + ' ' + escapeHtml(f.name) + ' <span class="muted">(' + fmtSize(f.size) + ')</span></span><span class="st" id="qst' + pfx + '_' + i + '">⏳ в очереди</span></div>').join('');
+    let idx = 0, lastOk = '';
+    const failed = [];
+    function setRow(i, html, title){
+      const el = document.getElementById('qst' + pfx + '_' + i);
+      if(el){ el.innerHTML = html; if(title) el.title = title; }
+    }
+    function next(){
+      if(idx >= files.length){ finish(); return; }
+      const f = files[idx], n = idx + 1;
+      setRow(idx, '⬆️ грузится…');
+      bar.style.width = '0%';
+      txt.textContent = 'Файл ' + n + ' из ' + files.length + ': ' + f.name + ' — начинаю...';
+      const fd = new FormData();
+      fd.append('mod_type', form.querySelector('input[name="mod_type"]').value);
+      fd.append('file', f, f.name);
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', form.action);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      xhr.upload.onprogress = ev => {
+        const base = 'Файл ' + n + ' из ' + files.length + ': ' + f.name + ' — ';
+        if(ev.lengthComputable && ev.total > 0){
+          const p = Math.round(ev.loaded / ev.total * 100);
+          bar.style.width = p + '%';
+          txt.textContent = base + fmtSize(ev.loaded) + ' из ' + fmtSize(ev.total) + ' (' + p + '%)';
+        } else {
+          txt.textContent = base + fmtSize(ev.loaded) + '...';
+        }
+      };
+      xhr.upload.onload = () => {
+        bar.style.width = '100%';
+        txt.textContent = 'Файл ' + n + ' из ' + files.length + ' на сервере. Распаковываю ' + f.name + ' — не закрывай страницу...';
+      };
+      const oneDone = (ok, msg) => {
+        if(ok){ setRow(idx, '✅ готово', msg); lastOk = msg; }
+        else { setRow(idx, '❌ ошибка', msg); failed.push({file: f, msg: msg}); }
+        idx++;
+        next();
+      };
+      xhr.onload = () => {
+        let d = null;
+        try{ d = JSON.parse(xhr.responseText); }catch(_){ /* не JSON */ }
+        if(d && typeof d.ok !== 'undefined'){
+          oneDone(d.ok, d.ok ? d.message : (d.message || ('Ошибка ' + xhr.status)));
+        } else {
+          oneDone(false, 'Неожиданный ответ сервера');
+        }
+      };
+      xhr.onerror = () => oneDone(false, 'Ошибка сети. Проверь соединение и попробуй снова.');
+      xhr.send(fd);
+    }
+    function finish(){
+      busy = false;
+      const okCount = files.length - failed.length;
+      if(!failed.length){
+        bar.style.width = '100%';
+        txt.textContent = files.length === 1 ? ('✅ ' + lastOk) : ('✅ Всё готово! Установлено файлов: ' + files.length + '. Обновляю страницу...');
+        setTimeout(() => {
+          window.location.hash = 'tab-mods';
+          window.location.reload();
+        }, 1500);
+      } else {
+        bar.style.width = '100%';
+        txt.textContent = 'Готово: ✅ ' + okCount + ', ❌ ' + failed.length + ' — ' + failed.map(x => x.file.name + ': ' + x.msg).join(' | ');
+        try{
+          const dt = new DataTransfer();
+          failed.forEach(x => dt.items.add(x.file));
+          fileInput.files = dt.files;
+          showHint();
+        }catch(_){ /* старый браузер — выбор останется как был */ }
+        btn.disabled = false;
+      }
+    }
+    next();
+  });
+}
+wireUpload('Trk', 'большой трассы');
+wireUpload('Car', 'большого автомобиля');
+
+// ---------- диагностика трекера ----------
+async function loadTracker(){
+  const box = document.getElementById('trkBody');
+  if(!box) return;
+  try{
+    const r = await fetch('/api/tracker');
+    const d = await r.json();
+    window._trkLast = d;
+    const t = d.tracker || {}, p = d.probe || {}, sf = d.stats_file || {};
+    const ago = ts => {
+      if(!ts) return '—';
+      const s = Math.max(0, (d.now || 0) - ts);
+      if(s < 90) return s + ' с назад';
+      if(s < 5400) return Math.round(s / 60) + ' мин назад';
+      return Math.round(s / 3600) + ' ч назад';
+    };
+    const esc = s => escapeHtml(String((s === null || s === undefined || s === '') ? '—' : s));
+    let verdict;
+    const u = d.udp || {}, roster = d.udp_roster || [];
+    const udpAlive = u.listening && u.last_rx && ((d.now || 0) - u.last_rx) <= 150;
+    if(!t.started) verdict = '🔴 Трекер не запущен. Перезапусти панель.';
+    else if(!t.last_run || ((d.now || 0) - t.last_run) > 180) verdict = '🔴 Цикл трекера не выполняется. Перезапусти панель.';
+    else if(u.bind_error) verdict = '🔴 Не могу слушать UDP-порт 11000 (' + esc(u.bind_error) + '). Возможно, запущены две копии панели — перезапусти её.';
+    else if(!u.cfg_points_to_us) verdict = '🟡 В server_cfg.ini прописан чужой UDP_PLUGIN_ADDRESS (' + esc(u.cfg_address) + '). Панель его не трогает: убери другой плагин из конфига и перезапусти игровой сервер.';
+    else if(u.cfg_managed && !u.packets) verdict = '🟡 Я только что прописал UDP в server_cfg.ini. Перезапусти ИГРОВОЙ сервер (кнопка ↻), подожди минуту и обнови.';
+    else if(!u.packets) verdict = '🟡 Игровой сервер пока не шлёт UDP-пакеты. Перезапусти ИГРОВОЙ сервер (кнопка ↻), подожди минуту и обнови.';
+    else if(!udpAlive) verdict = '🟡 UDP-пакеты были, но затихли (' + esc(ago(u.last_rx)) + '). Игровой сервер перезапускался? Подожди минуту и обнови.';
+    else if(!roster.length) verdict = '⚪ UDP работает, онлайн пуст. Когда кто-то зайдёт — время начнёт копиться.';
+    else verdict = '🟢 Всё работает по UDP: вижу игроков: ' + roster.length + ' (' + esc(roster.map(r => r.name).join(', ')) + '). Статистика и круги копятся.';
+    let h = '<p class="hint" style="font-size:14px">' + verdict + '</p>';
+    h += '<table class="list"><tr><th>Параметр</th><th>Значение</th></tr>';
+    const rows = [
+      ['Источник данных', t.source === 'udp' ? 'UDP-плагин ✅' : (t.source === 'http' ? 'HTTP (запасной)' : '—')],
+      ['UDP: конфиг', esc(u.cfg_address) + ' / local ' + esc(u.cfg_local_port) + (u.cfg_points_to_us ? ' ✅' : ' ❌')],
+      ['Файл server_cfg.ini', '<div style="font-family:monospace;font-size:11px;word-break:break-all">' + esc(d.cfg_path) + '</div>'],
+      ['UDP: слушаю', u.listening ? 'да ✅' : ('нет (' + esc(u.bind_error || '—') + ')')],
+      ['UDP: пакетов', esc(u.packets) + ' (последний ' + esc(ago(u.last_rx)) + ', тип ' + esc(u.last_type || '—') + ')'],
+      ['UDP: игроки', roster.length ? esc(roster.map(r => r.name + ' (' + (r.car || '—') + ')').join(', ')) : '—'],
+      ['UDP: трасса/сессия', esc(d.udp_track) + ' / ' + esc(u.session_type)],
+      ['UDP: прочее', 'версия сервера: ' + esc(u.server_version) + ', команд отправлено: ' + esc(u.cmd_sent) + ', ошибок разбора: ' + esc(u.parse_errors) + (u.last_parse_error ? ' (' + esc(u.last_parse_error) + ')' : '') + (u.cmd_error ? ', ошибка команд: ' + esc(u.cmd_error) : '')],
+      ['Игровой сервер запущен', d.server_running ? 'да ✅' : 'нет ❌'],
+      ['Трекер стартовал', t.started ? esc(ago(t.started)) + ' ✅' : 'нет ❌'],
+      ['Циклов выполнено', esc(t.cycle) + ' (последний ' + esc(ago(t.last_run)) + ')'],
+      ['Записей в статистику', esc(t.samples)],
+      ['HTTP-порт опроса', esc(p.port)],
+      ['/INFO', p.info_ok ? ('✅ трасса: ' + esc(p.info_track) + ', онлайн: ' + esc(p.info_clients)) : '❌'],
+      ['Поля /INFO', esc((p.info_keys || []).join(', '))],
+      ['/JSON', p.json_ok ? ('✅ машин в ответе: ' + esc(p.cars_raw)) : '❌'],
+      ['Поля первой машины', esc((p.car_keys || []).join(', '))],
+      ['Игроков распознано', esc(p.players) + ((p.names || []).length ? ' (' + esc(p.names.join(', ')) + ')' : '')],
+      ['/INFO ответ', esc(p.info_status) + ' / ' + esc(p.info_ctype) + ' / ' + esc(p.info_len) + ' байт'],
+      ['/INFO сырьё', '<div style="font-family:monospace;font-size:11px;word-break:break-all;white-space:pre-wrap;max-height:100px;overflow:auto">' + esc(p.info_head) + '</div>'],
+      ['Поле json в /INFO', '<div style="font-family:monospace;font-size:11px;word-break:break-all;white-space:pre-wrap">' + esc(p.info_json_field) + '</div>'],
+      ['/JSON ответ', esc(p.json_status) + ' / ' + esc(p.json_ctype) + ' / ' + esc(p.json_len) + ' байт'],
+      ['/JSON сырьё', '<div style="font-family:monospace;font-size:11px;word-break:break-all;white-space:pre-wrap;max-height:100px;overflow:auto">' + esc(p.json_head) + '</div>'],
+      ['Ошибка опроса', esc(p.error)],
+      ['Файл статистики', sf.exists ? (esc(sf.size) + ' байт, пилотов: ' + esc(sf.drivers) + ', GUID: ' + esc(sf.guids) + ', обновлён ' + esc(ago(sf.updated))) : 'нет ❌'],
+      ['Пилоты в файле', esc((sf.names || []).join(', '))],
+      ['Файлов results', esc(d.results_files) + ', кругов сосканировано: ' + (t.scanned_laps >= 0 ? esc(t.scanned_laps) : 'ошибка') + ' (' + esc(ago(t.last_scan)) + ')'],
+      ['Ошибка цикла', esc(t.error)]
+    ];
+    for(const [k, v] of rows) h += '<tr><td>' + esc(k) + '</td><td>' + v + '</td></tr>';
+    h += '</table>';
+    box.innerHTML = h;
+  }catch(e){
+    box.innerHTML = '<p class="hint">❌ Не удалось загрузить диагностику.</p>';
+  }
+}
+if(document.getElementById('trkBody')){
+  document.getElementById('trkRefresh').addEventListener('click', loadTracker);
+  document.getElementById('trkCopy').addEventListener('click', async () => {
+    const st = document.getElementById('trkCopyStatus');
+    const d = window._trkLast;
+    if(!d){ st.textContent = 'Сначала дождись загрузки.'; return; }
+    const txt = 'TRACKER REPORT ' + new Date((d.now || 0) * 1000).toISOString() + '\n' + JSON.stringify(d, null, 1);
+    const done = () => { st.textContent = '✅ Отчёт скопирован, присылай.'; };
+    try{ await navigator.clipboard.writeText(txt); done(); return; }
+    catch(e){ /* http без шифрования — пробуем старый способ */ }
+    const ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); done(); }
+    catch(err){ st.textContent = 'Не получилось — скопируй вручную.'; }
+    ta.remove();
+  });
+  loadTracker();
+  setInterval(() => {
+    const sec = document.getElementById('tab-server');
+    if(sec && sec.classList.contains('active')) loadTracker();
+  }, 60000);
+}
+
+// ---------- приглашение друзьям ----------
+document.getElementById('copyInvite').addEventListener('click', async () => {
+  const t = document.getElementById('inviteText').textContent;
+  const st = document.getElementById('copyStatus');
+  try{
+    await navigator.clipboard.writeText(t);
+    st.textContent = '✅ Скопировано! Кидай друзьям.';
+  }catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = t; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); st.textContent = '✅ Скопировано! Кидай друзьям.'; }
+    catch(err){ st.textContent = 'Не получилось — выдели текст вручную.'; }
+    ta.remove();
+  }
+});
+
+// ---------- мониторинг VDS ----------
+async function loadStats(){
+  try{
+    const r = await fetch('/stats');
+    const j = await r.json();
+    document.getElementById('stCpu').textContent = (j.cpu == null) ? '—' : j.cpu + '%';
+    document.getElementById('stRam').textContent = (j.ram_used == null) ? '—' : ((j.ram_used / 1024).toFixed(1) + '/' + (j.ram_total / 1024).toFixed(1) + ' ГБ');
+    document.getElementById('stDisk').textContent = (j.disk_pct == null) ? '—' : (j.disk_pct + '%');
+    document.getElementById('stUp').textContent = j.uptime || '—';
+  }catch(e){}
+}
+loadStats();
+setInterval(loadStats, 10000);
+
+// ---------- кто онлайн ----------
+async function loadOnline(){
+  const box = document.getElementById('onlineBox');
+  try{
+    const r = await fetch('/online?srv=' + SRV);
+    const j = await r.json();
+    const cnt = j.ok ? (j.count + (j.max ? '/' + j.max : '')) : '—';
+    document.getElementById('stOnline').textContent = cnt;
+    document.getElementById('onlineCount').textContent = cnt;
+    if(!j.ok){ box.innerHTML = '<p class="hint">Сервер выключен или не отвечает. Данные появятся, когда сервер запущен.</p>'; return; }
+    if(!j.players.length){ box.innerHTML = '<p class="hint">Сервер работает, но пока никого нет. Зови друзей! 🙂</p>'; return; }
+    let h = '<table class="list"><tr><th>#</th><th>Пилот</th><th>Машина</th><th>Лучший круг</th><th>Макс. скорость</th></tr>';
+    j.players.forEach((p, i) => {
+      h += '<tr><td>' + (i + 1) + '</td><td><b>' + esc(p.name) + '</b></td><td>' + esc(p.car) + '</td><td>' + esc(p.best) + '</td><td>' + esc(p.speed) + '</td></tr>';
+    });
+    box.innerHTML = h + '</table>';
+  }catch(e){ box.innerHTML = '<p class="hint">Ошибка загрузки.</p>'; }
+}
+document.getElementById('refreshOnline').addEventListener('click', loadOnline);
+loadOnline();
+setInterval(loadOnline, 15000);
+
+// ---------- логи ----------
+async function loadLogs(){
+  const box = document.getElementById('logBox');
+  try{
+    const n = document.getElementById('logLines').value;
+    const r = await fetch('/logs?lines=' + n + '&srv=' + SRV);
+    const j = await r.json();
+    box.textContent = j.lines.length ? j.lines.join('') : '(лог пустой — сервер ещё не запускался)';
+    box.scrollTop = box.scrollHeight;
+  }catch(e){ box.textContent = 'Ошибка загрузки логов: ' + e; }
+}
+document.getElementById('refreshLogs').addEventListener('click', loadLogs);
+setInterval(() => {
+  if(document.getElementById('autoLog').checked && document.getElementById('tab-logs').classList.contains('active')) loadLogs();
+}, 3000);
+loadLogs();
+</script>
+</body>
+</html>

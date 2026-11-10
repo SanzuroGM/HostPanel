@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP — Ожидание доступа</title>
+<link rel="icon" href="/static/logo.png">
+<style>
+:root{color-scheme:dark}
+body{
+  margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+  font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  color:#f1eaff;text-align:center;
+  background:
+    radial-gradient(900px 480px at 50% 18%, rgba(124,58,237,.32), transparent 65%),
+    linear-gradient(180deg,#0d0a1e,#070512);
+}
+.card{background:rgba(26,20,46,.80);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);
+  border:1px solid rgba(170,140,255,.14);border-radius:14px;padding:36px 34px;width:420px;max-width:94vw;
+  box-shadow:0 16px 60px rgba(0,0,0,.55);animation:rise .5s cubic-bezier(.16,.7,.3,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.logo{max-width:200px;width:50vw;height:auto;filter:drop-shadow(0 0 22px rgba(168,85,247,.5))}
+h1{font-size:22px;margin:16px 0 8px}
+h1 .hour{font-size:26px}
+p{color:#c9c2e8;font-size:14.5px;line-height:1.6;margin:8px 0}
+p b{color:#c084fc}
+.hint{color:#9d94c4;font-size:12.5px}
+.spin{width:44px;height:44px;margin:18px auto 6px;border-radius:50%;
+  border:4px solid rgba(168,85,247,.2);border-top-color:#a855f7;animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+a.out{color:#9d94c4;font-size:13px}
+.credit{margin-top:16px;font-size:12px;color:#9d94c4}
+.credit b{color:#c084fc}
+</style>
+</head>
+<body>
+<div class="card">
+  <img src="/static/logo.png" class="logo" alt="Alternative">
+  <h1><span class="hour">⏳</span> Заявка отправлена!</h1>
+  <p>Привет, <b>{{ username }}</b>!<br>Ожидайте, пока администратор подтвердит вам доступ.</p>
+  <div class="spin"></div>
+  <p class="hint">Страница откроется автоматически, как только доступ выдадут.<br>Можно просто подождать здесь.</p>
+  <p><a class="out" href="/logout">Выйти</a></p>
+  <div class="credit">Developed by <b>Spotik</b>, with love! 💜</div>
+</div>
+<script>
+setInterval(async () => {
+  try{
+    const r = await fetch('/auth_status');
+    const j = await r.json();
+    if(j.logged_in && j.status === 'approved') location.href = '/';
+    if(!j.logged_in) location.href = '/auth';
+  }catch(e){}
+}, 5000);
+</script>
+</body>
+</html>

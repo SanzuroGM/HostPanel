@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP — Вход / Регистрация</title>
+<link rel="icon" href="/static/logo.png">
+<style>
+:root{color-scheme:dark}
+body{
+  margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+  font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  color:#f1eaff;
+  background:
+    radial-gradient(900px 480px at 50% 18%, rgba(124,58,237,.32), transparent 65%),
+    radial-gradient(600px 400px at 85% 90%, rgba(168,85,247,.10), transparent 60%),
+    linear-gradient(180deg,#0d0a1e,#070512);
+}
+.auth-wrap{width:410px;max-width:94vw;text-align:center;padding:24px 0}
+.auth-logo{max-width:250px;width:58vw;height:auto;filter:drop-shadow(0 0 26px rgba(168,85,247,.5))}
+.auth-title{margin-top:12px;font-size:22px;font-weight:800;letter-spacing:3px;
+  background:linear-gradient(135deg,#e9d5ff,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.auth-sub{color:#9d94c4;font-size:13px;margin-top:4px;letter-spacing:1px}
+.card{background:rgba(26,20,46,.80);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);
+  border:1px solid rgba(170,140,255,.14);border-radius:14px;padding:24px;margin-top:18px;text-align:left;
+  box-shadow:0 16px 60px rgba(0,0,0,.55);animation:rise .5s cubic-bezier(.16,.7,.3,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.auth-tabs{display:flex;gap:6px;background:rgba(0,0,0,.3);border-radius:8px;padding:4px;margin-bottom:16px}
+.auth-tab{flex:1;background:transparent;border:none;color:#9d94c4;font-weight:700;padding:10px;
+  border-radius:6px;cursor:pointer;font-size:14px;font-family:inherit;transition:background .15s,color .15s}
+.auth-tab.active{background:rgba(168,85,247,.18);color:#fff;box-shadow:inset 0 -2px 0 #c084fc}
+label{display:block;margin-top:12px;font-size:12px;color:#9d94c4;font-weight:600}
+label small{display:block;font-weight:400;margin-top:2px}
+input{width:100%;padding:11px 12px;margin-top:6px;background:rgba(0,0,0,.35);
+  border:1px solid rgba(255,255,255,.09);border-bottom-color:rgba(255,255,255,.22);
+  border-radius:6px;color:#fff;font-size:15px;box-sizing:border-box;font-family:inherit;
+  transition:border-color .15s,box-shadow .15s}
+input:focus{border-color:rgba(168,85,247,.5);outline:none;box-shadow:inset 0 -2px 0 #c084fc,0 0 0 3px rgba(168,85,247,.12)}
+button.submit{width:100%;margin-top:20px;padding:11px;border:1px solid rgba(255,255,255,.08);
+  border-bottom-color:rgba(0,0,0,.45);border-radius:6px;background:#7c3aed;color:#fff;font-size:15px;
+  font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s,transform .08s}
+button.submit:hover{background:#8b5cf6}
+button.submit:active{transform:scale(.98)}
+.err{background:rgba(229,72,77,.14);color:#ffb4b8;border:1px solid #e5484d;border-radius:8px;
+  padding:10px;margin-bottom:4px;font-size:14px;text-align:center}
+.hint{color:#9d94c4;font-size:12.5px;margin:12px 0 0;text-align:center;line-height:1.5}
+.auth-credit{margin-top:14px;font-size:12px;color:#9d94c4}
+.auth-credit b{color:#c084fc}
+</style>
+</head>
+<body>
+<div class="auth-wrap">
+  <img src="/static/logo.png" class="auth-logo" alt="Alternative">
+  <div class="auth-title">ALTERNATIVE PANEL</div>
+  <div class="auth-sub">Assetto Corsa Hosting Panel</div>
+  <div class="card">
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab" id="tabLogin">Вход</button>
+      <button type="button" class="auth-tab" id="tabRegister">Регистрация</button>
+    </div>
+    {% if error %}<div class="err">{{ error }}</div>{% endif %}
+    <form method="POST" action="/login" id="formLogin">
+      <label>Логин</label>
+      <input type="text" name="username" autocomplete="username" required>
+      <label>Пароль</label>
+      <input type="password" name="password" autocomplete="current-password" required>
+      <button class="submit" type="submit">Войти</button>
+    </form>
+    <form method="POST" action="/register" id="formRegister">
+      <label>Придумай логин<small>3–20 символов: буквы, цифры, _ . -</small></label>
+      <input type="text" name="username" autocomplete="username" required>
+      <label>Пароль<small>минимум 4 символа</small></label>
+      <input type="password" name="password" autocomplete="new-password" required>
+      <label>Повтори пароль</label>
+      <input type="password" name="password2" autocomplete="new-password" required>
+      <button class="submit" type="submit">Зарегистрироваться</button>
+      <p class="hint">После регистрации доступ выдаёт администратор.</p>
+    </form>
+  </div>
+  <div class="auth-credit">Developed by <b>Spotik</b>, with love! 💜</div>
+</div>
+<script>
+const MODE = {{ mode|tojson }};
+const tabLogin = document.getElementById('tabLogin');
+const tabRegister = document.getElementById('tabRegister');
+const formLogin = document.getElementById('formLogin');
+const formRegister = document.getElementById('formRegister');
+function setMode(m){
+  const isReg = (m === 'register');
+  tabLogin.classList.toggle('active', !isReg);
+  tabRegister.classList.toggle('active', isReg);
+  formLogin.style.display = isReg ? 'none' : '';
+  formRegister.style.display = isReg ? '' : 'none';
+}
+tabLogin.addEventListener('click', () => setMode('login'));
+tabRegister.addEventListener('click', () => setMode('register'));
+setMode(MODE === 'register' ? 'register' : 'login');
+</script>
+</body>
+</html>

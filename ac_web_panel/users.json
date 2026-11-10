@@ -1,0 +1,56 @@
+{
+  "branchik07": {
+    "pw": "pbkdf2:sha256:1000000$C6cRf2OMQYmcBs64$0e41d7653e92b88f1b09539b63fbd3daf2e8e8128192d3217adc10ba12829e18",
+    "role": "admin",
+    "status": "approved",
+    "created": "2026-09-12 21:06"
+  },
+  "Proverka": {
+    "pw": "scrypt:32768:8:1$BouxtE48wFP0zvcJ$c1e0c5dd8cda972b2a13ecdbaa348b57afa4340d1f0e0ef869865456eaa220162c4bb539f2b18a4e76b579978e6c53e4a9437d9595989333b3256beb561e08d5",
+    "role": "user",
+    "status": "approved",
+    "created": "2026-09-12 21:07"
+  },
+  "Hacachou": {
+    "pw": "scrypt:32768:8:1$hdZjrzj8nyMSMoKu$9e82abe22c94b3c91bb6c49d1ce05f31b251f828d51457e691acf058b1510db5a68ae5610beb3c775e5ae9e4758a553c0686f11c20a080eaa9f23b039247c0cb",
+    "role": "user",
+    "status": "approved",
+    "created": "2026-09-12 21:24",
+    "nick": "Elysium | Gleb Bogatkin | 116",
+    "steamid": "76561199163237004"
+  },
+  "Sanzuro": {
+    "pw": "scrypt:32768:8:1$DzyXhCQp3gSWERkL$d59ef4555805fe7b2dcce81a335335a4b140394be7e7aeaf03d4d96f5607e9a15b452343a1ad57a054fc2eac76a64d882e512f88a70840e5c0e80d2f5c4ee5a0",
+    "role": "user",
+    "status": "approved",
+    "created": "2026-09-12 23:03",
+    "nick": "Sanzuro",
+    "steamid": "76561199017639455"
+  },
+  "CarKillerNSK": {
+    "pw": "scrypt:32768:8:1$QZQuKSSp2Edi2ere$5a71869158e6197ae2935c880cd884be130bfdf26dde88026b85f9b470389d6165bec6a8033b9b5d6ba18fd7cd30a6439a992dd26e1b15ff0a0add6409f3e5fc",
+    "role": "user",
+    "status": "approved",
+    "created": "2026-09-14 17:52"
+  },
+  "fells_": {
+    "pw": "scrypt:32768:8:1$2J7aUhW4cbtNjSCc$653a5305db388ea66bc0cdf85a02db66ece617ec1089ff2f5de7c32da2dc885f7e7aedbc89974aac8a80f535be09327cdf74dc7726bc9321c8c9b29ca8020d4e",
+    "role": "user",
+    "status": "approved",
+    "created": "2026-09-24 23:39",
+    "nick": "fells__",
+    "steamid": "76561198997281572"
+  },
+  "D1masik57": {
+    "pw": "scrypt:32768:8:1$uMQcb4WkVlbUOopM$2ff3023c7d9c343e10ddad8173d18b09b3afe2cb882ba1729394193b9b8617b26ec7f25f2725ea874b8370be4386822531b1aa27892731c67af6341818f8f759",
+    "role": "user",
+    "status": "approved",
+    "created": "2026-11-03 22:44"
+  },
+  "akiyh1r": {
+    "pw": "scrypt:32768:8:1$MGmEx7ayvZxs1OYR$615cc671125f56b3a205f7eadaf0a138a1e6ecaaa5ac59f852430dfac9132d34a81f293165a7fa676c2952b9e0ef40eab2457c6c60d612a1849cc0a27a1d6253",
+    "role": "user",
+    "status": "approved",
+    "created": "2026-11-08 22:11"
+  }
+}
